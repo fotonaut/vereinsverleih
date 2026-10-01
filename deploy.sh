@@ -29,10 +29,10 @@ rsync -az --delete -e "$SSH" \
 
 echo "› Migrationen & Caches"
 $SSH "$SSH_TARGET" "cd $REMOTE_DIR && mkdir -p storage/app/public storage/framework/{sessions,cache,views} storage/logs bootstrap/cache \
-  && chmod -R ug+rwX storage bootstrap/cache \
+  && { chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true; } \
   && $PHP_BIN artisan package:discover --ansi && $PHP_BIN artisan migrate --force && $PHP_BIN artisan storage:link 2>/dev/null; \
   $PHP_BIN artisan config:cache && $PHP_BIN artisan route:cache && $PHP_BIN artisan view:cache && $PHP_BIN artisan queue:restart; chmod -R ug+rwX storage bootstrap/cache"
 echo "› Dev-Abhängigkeiten lokal wiederherstellen"
+docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/c -v "$PWD:/app" -w /app composer:2 composer install --no-interaction --no-scripts >/dev/null 2>&1 || echo "! lokales 'composer install' bitte manuell wiederholen"
 rm -f bootstrap/cache/*.php
-docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/c -v "$PWD:/app" -w /app composer:2 composer install --no-interaction >/dev/null
 echo "✓ Fertig"

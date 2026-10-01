@@ -71,6 +71,8 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+            // Webserver und CLI laufen unter verschiedenen Benutzern derselben Gruppe
+            'permission' => 0664,
         ],
 
         'slack' => [
