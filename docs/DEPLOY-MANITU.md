@@ -18,7 +18,7 @@ Das Frontend wird **lokal** gebaut (Manitu hat kein Node), Abhängigkeiten ohne 
 4. **`.env`** auf dem Server anlegen (aus `.env.production.example`): `APP_KEY` mit `php artisan key:generate --show` lokal erzeugen, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, DB- und SMTP-Zugang.
 5. **Cron** im Manitu-Panel (kleinster Takt: 5 Minuten, Typ *PHP-Skript* oder *Befehl*):
    ```
-   cd /home/sites/siteNNN/vereinsverleih && php artisan schedule:run
+   cd /home/sites/siteNNN/vereinsverleih && php8.3 artisan schedule:run
    ```
    `schedule:run` startet alle 5 Min. `queue:work --stop-when-empty` und versendet damit die Mails (Cron-Laufzeit max. 120 s).
 6. **Storage-Link** nach dem ersten Deploy: `php artisan storage:link`
@@ -26,12 +26,16 @@ Das Frontend wird **lokal** gebaut (Manitu hat kein Node), Abhängigkeiten ohne 
 ## Jedes Update
 
 ```bash
-SSH_TARGET=USER@HOST REMOTE_DIR=/home/sites/siteNNN/vereinsverleih ./deploy.sh
+SSH_TARGET=USER@HOST REMOTE_DIR=/home/sites/siteNNN/vereinsverleih PHP_BIN=php8.3 ./deploy.sh
 ```
 
 Das Skript baut das Frontend, installiert Composer-Pakete (`--no-dev`), überträgt per rsync und führt auf dem Server `migrate --force` und die Cache-Befehle aus.
 
 ## Stolperfallen
+
+- Auf Manitu ist `php` in der Shell teils 8.2: immer `php8.3` verwenden (`PHP_BIN=php8.3`).
+- Apache läuft unter der Site-Gruppe: `storage/` und `bootstrap/cache` brauchen Gruppen-Schreibrechte (macht `deploy.sh`), sonst 500er und kein Foto-Upload.
+- Das Panel legt für die Domain ein leeres Docroot unter `web/` an: `rmdir` und durch Symlink auf `public/` ersetzen, z. B. `ln -s ../../vereinsverleih/public web/rmbn.de/vereinsverleih`.
 
 - `bootstrap/cache/packages.php` und `services.php` werden **nicht** übertragen (sie enthalten lokale Dev-Pakete) – das Skript schließt sie aus.
 - Beim ersten Mal `php artisan db:seed --force` ausführen (in Produktion legt er nur Kategorien an, keine Demo-Daten).
