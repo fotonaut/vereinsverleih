@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::prefix('verwaltung')->name('manage.')->group(function () {
+        Route::get('gegenstaende/{item}/kalender', Manage\ItemCalendarController::class)->name('items.calendar');
         Route::resource('gegenstaende', Manage\ItemController::class)
             ->parameters(['gegenstaende' => 'item'])->except('show')->names('items');
         Route::get('eingang', [Manage\IncomingController::class, 'index'])->name('incoming.index');

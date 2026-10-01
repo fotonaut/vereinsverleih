@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AvailabilityCalendar from '@/components/AvailabilityCalendar.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,16 @@ const form = useForm({
     message: '',
     website: '', // Honeypot
 });
+
+// Klick im Kalender: erster Klick = Von, zweiter (späterer) Klick = Bis
+const pick = (day: string) => {
+    if (!form.start_date || form.end_date || day < form.start_date) {
+        form.start_date = day;
+        form.end_date = '';
+    } else {
+        form.end_date = day;
+    }
+};
 
 const submit = () => form.post(route('requests.store', props.item.id));
 </script>
@@ -74,6 +85,18 @@ const submit = () => form.post(route('requests.store', props.item.id));
                         <dd class="font-medium">{{ item.location || 'nach Absprache' }}</dd>
                     </div>
                 </dl>
+
+                <div class="mt-6">
+                    <h2 class="mb-2 font-semibold">Verfügbarkeit</h2>
+                    <AvailabilityCalendar
+                        :quantity="item.quantity"
+                        :reservations="reservations"
+                        :selectable="canRequestAsClub || canRequestAsPrivate"
+                        :from="form.start_date"
+                        :to="form.end_date"
+                        @pick="pick"
+                    />
+                </div>
 
                 <div v-if="reservations.length" class="mt-6">
                     <h2 class="mb-2 font-semibold">Bereits belegt</h2>
