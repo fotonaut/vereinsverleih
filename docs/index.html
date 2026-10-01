@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vereinsverleih – Vereinsinventar teilen statt doppelt kaufen</title>
+<meta name="description" content="Open-Source-Plattform, mit der Vereine ihr Inventar eintragen und an andere Vereine oder Privatpersonen verleihen – mit Anfrage-Workflow, Bestandsprüfung und E-Mail-Benachrichtigung.">
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --ink: #1c1b18; --muted: #5f5c54; --line: #e6e2d8;
+    --brand: #1f6f5c; --brand-ink: #ffffff; --accent: #c8501e; --soft: #e7f2ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14130f; --surface: #1d1c17; --ink: #f2efe6; --muted: #a8a496; --line: #33312a; --brand: #4fb89c; --brand-ink: #0c1512; --accent: #f08a58; --soft: #1a2a25; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header.top { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+  .logo { font-weight: 700; letter-spacing: -.01em; display: flex; gap: 10px; align-items: center; }
+  .logo i { width: 28px; height: 28px; border-radius: 8px; background: var(--brand); display: inline-block; position: relative; }
+  .logo i::after { content: ""; position: absolute; inset: 7px; border: 2.5px solid var(--brand-ink); border-radius: 3px; }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 15px; }
+  nav a:hover { color: var(--ink); }
+  .hero { padding: 56px 0 40px; text-align: center; }
+  .eyebrow { display: inline-block; background: var(--soft); color: var(--brand); font-weight: 600; font-size: 13px; padding: 4px 12px; border-radius: 99px; letter-spacing: .02em; }
+  h1 { font-size: clamp(34px, 6vw, 58px); line-height: 1.08; letter-spacing: -.025em; margin: 18px auto 16px; max-width: 18ch; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lead { color: var(--muted); font-size: 19px; max-width: 60ch; margin: 0 auto 28px; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; margin: 4px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  section { padding: 44px 0; }
+  h2 { font-size: clamp(24px, 3.4vw, 32px); letter-spacing: -.015em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .num { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; font-weight: 700; margin-bottom: 10px; }
+  .scope { display: flex; gap: 12px; align-items: flex-start; }
+  .scope b { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--soft); color: var(--brand); font-size: 18px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; margin-top: 8px; }
+  .flow span { background: var(--soft); color: var(--brand); padding: 3px 12px; border-radius: 99px; font-weight: 600; }
+  .flow s { text-decoration: none; color: var(--muted); }
+  ul.ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  ul.ticks li { padding-left: 28px; position: relative; }
+  ul.ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--brand); font-weight: 800; }
+  .tech { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tech span { border: 1px solid var(--line); background: var(--surface); padding: 4px 12px; border-radius: 8px; font-size: 14px; }
+  pre { background: #12110e; color: #eae6d9; padding: 16px 18px; border-radius: 12px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 0; }
+  .cta { background: var(--brand); color: var(--brand-ink); border-radius: 20px; padding: 40px 24px; text-align: center; }
+  .cta h2 { color: inherit; }
+  .cta p { margin: 0 auto 20px; max-width: 54ch; opacity: .92; }
+  .cta .btn { background: var(--brand-ink); color: var(--brand); border-color: var(--brand-ink); }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; text-align: center; }
+  a { color: var(--brand); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><i></i> Vereinsverleih</div>
+    <nav><a href="#wie">So funktioniert's</a><a href="#wer">Wer darf leihen?</a><a href="#selbst">Selbst betreiben</a></nav>
+  </header>
+
+  <div class="hero">
+    <span class="eyebrow">Open Source · MIT-Lizenz</span>
+    <h1>Was ein Verein hat, kann der <em>nächste leihen</em>.</h1>
+    <p class="lead">Festzelt, Bierzeltgarnituren, PA-Anlage, Hüpfburg: Jeder Verein besitzt Dinge, die er nur dreimal im Jahr braucht. Vereinsverleih macht das Inventar sichtbar – und das Ausleihen so einfach wie eine Online-Bestellung.</p>
+    <a class="btn primary" href="https://github.com/fotonaut/vereinsverleih">Auf GitHub herunterladen</a>
+    <a class="btn" href="#wie">Wie es funktioniert</a>
+  </div>
+
+  <section>
+    <h2>Das Problem</h2>
+    <p class="sub">Vereine kaufen oder mieten teuer, was im Nachbarverein im Keller steht. Anfragen laufen über WhatsApp, Zettel und Zufall – niemand weiß, wer wann was hat.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Doppelt gekauft</h3><p>Dasselbe Zelt steht in fünf Vereinsheimen und wird je Verein nur ein paar Tage im Jahr genutzt.</p></div>
+      <div class="card"><h3>Unübersichtlich</h3><p>Wer hat was und wann frei? Absprachen per Telefon und Chat gehen verloren.</p></div>
+      <div class="card"><h3>Unklare Regeln</h3><p>Manches verleiht man gern an Vereine, aber nicht an Privatleute – oder gar nicht. Diese Regeln stehen nirgends.</p></div>
+    </div>
+  </section>
+
+  <section id="wie">
+    <h2>So funktioniert's</h2>
+    <p class="sub">Drei Schritte vom Eintragen bis zur Rückgabe.</p>
+    <div class="grid g3">
+      <div class="card"><div class="num">1</div><h3>Inventar eintragen</h3><p>Verein registrieren, Gegenstände mit Foto, Bestand, Kaution und Abholort anlegen. Mitglieder per E-Mail einladen.</p></div>
+      <div class="card"><div class="num">2</div><h3>Im Katalog finden</h3><p>Der öffentliche Katalog zeigt alles Verleihbare mit Suche und Filtern. Belegte Zeiträume sind direkt sichtbar.</p></div>
+      <div class="card"><div class="num">3</div><h3>Anfragen &amp; verleihen</h3><p>Anfrage mit Zeitraum und Menge senden. Der Verein genehmigt oder lehnt ab – beide Seiten werden per E-Mail informiert.</p>
+        <div class="flow"><span>Angefragt</span><s>→</s><span>Genehmigt</span><s>→</s><span>Ausgeliehen</span><s>→</s><span>Zurück</span></div></div>
+    </div>
+  </section>
+
+  <section id="wer">
+    <h2>Pro Gegenstand: Wer darf leihen?</h2>
+    <p class="sub">Jeder Verein entscheidet selbst – für jedes einzelne Teil.</p>
+    <div class="grid g2">
+      <div class="card scope"><b>⚑</b><div><h3>Nur andere Vereine</h3><p>Anfragen nur von angemeldeten Vereinen, z. B. für die große PA-Anlage.</p></div></div>
+      <div class="card scope"><b>☺</b><div><h3>Nur Privatpersonen</h3><p>Z. B. die Hüpfburg für den Kindergeburtstag – ganz ohne Konto per E-Mail-Bestätigung.</p></div></div>
+      <div class="card scope"><b>⚑☺</b><div><h3>Vereine und Privatpersonen</h3><p>Der Klassiker: Bierzeltgarnituren und Pavillons für alle.</p></div></div>
+      <div class="card scope"><b>⌂</b><div><h3>Niemand / nur intern</h3><p>Bleibt im Bestand erfasst, erscheint aber nicht im Katalog.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Was drinsteckt</h2>
+    <p class="sub">Ein sauber strukturierter MVP, gebaut zum Erweitern.</p>
+    <ul class="ticks">
+      <li>Vereinsverwaltung mit Rollen Admin / Mitglied</li>
+      <li>Bestandsprüfung je Zeitraum – keine Überbuchung</li>
+      <li>Privatpersonen ohne Konto, mit Bestätigungs-Link</li>
+      <li>E-Mail-Benachrichtigungen über eine Queue</li>
+      <li>Fotos, Kategorien, Kaution, Abholort</li>
+      <li>Spam-Schutz: Honeypot, Rate-Limit, E-Mail-Verifizierung</li>
+      <li>Komplett deutsch, mobil nutzbar, Dark Mode</li>
+      <li>Läuft auf normalem PHP-Webhosting – kein Node, kein Server-Root</li>
+    </ul>
+  </section>
+
+  <section id="selbst">
+    <h2>Selbst betreiben</h2>
+    <p class="sub">Jeder Verband oder Stadtteil kann eine eigene Instanz hosten. Voraussetzungen: PHP 8.3+, MySQL/MariaDB, ein Cronjob.</p>
+    <div class="tech" style="margin-bottom:18px"><span>Laravel 13</span><span>PHP 8.3+</span><span>MySQL 8</span><span>Inertia.js</span><span>Vue 3</span><span>TypeScript</span><span>Tailwind CSS</span><span>Docker (lokal)</span></div>
+<pre>git clone https://github.com/fotonaut/vereinsverleih.git
+cd vereinsverleih
+cp .env.example .env
+docker compose up -d mysql mailpit
+docker compose run --rm app composer install
+docker compose run --rm app php artisan key:generate
+docker compose run --rm app php artisan migrate --seed</pre>
+  </section>
+
+  <section>
+    <div class="cta">
+      <h2>Inventar teilen, Geld sparen, Gemeinschaft stärken.</h2>
+      <p>Kostenlos, quelloffen und ohne Tracking. Fork it, host it, improve it.</p>
+      <a class="btn" href="https://github.com/fotonaut/vereinsverleih">Zum GitHub-Projekt</a>
+    </div>
+  </section>
+
+  <footer>Vereinsverleih · MIT-Lizenz · Keine Cookies, keine externen Schriften, kein Tracking auf dieser Seite.</footer>
+</div>
+</body>
+</html>

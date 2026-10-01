@@ -1,0 +1,40 @@
+<?php
+
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LoanRequestController;
+use App\Http\Controllers\Manage;
+use App\Http\Controllers\PageController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('impressum', [PageController::class, 'imprint'])->name('imprint');
+
+Route::get('katalog', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('katalog/{item}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::post('katalog/{item}/anfragen', [LoanRequestController::class, 'store'])
+    ->middleware('throttle:6,1')->name('requests.store');
+
+Route::get('anfragen/{token}', [LoanRequestController::class, 'show'])->name('requests.show');
+Route::get('anfragen/{token}/bestaetigen', [LoanRequestController::class, 'verify'])->name('requests.verify');
+Route::post('anfragen/{token}/stornieren', [LoanRequestController::class, 'cancel'])->name('requests.cancel');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::prefix('verwaltung')->name('manage.')->group(function () {
+        Route::resource('gegenstaende', Manage\ItemController::class)
+            ->parameters(['gegenstaende' => 'item'])->except('show')->names('items');
+        Route::get('eingang', [Manage\IncomingController::class, 'index'])->name('incoming.index');
+        Route::patch('eingang/{loanRequest}', [Manage\IncomingController::class, 'update'])->name('incoming.update');
+        Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
+        Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');
+        Route::put('verein', [Manage\ClubController::class, 'update'])->name('club.update');
+        Route::get('mitglieder', [Manage\MemberController::class, 'index'])->name('members.index');
+        Route::post('mitglieder', [Manage\MemberController::class, 'store'])->name('members.store');
+        Route::delete('mitglieder/{member}', [Manage\MemberController::class, 'destroy'])->name('members.destroy');
+    });
+});
+
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
