@@ -22,6 +22,13 @@ const labels: Record<string, string> = {
     cancelled: 'Stornieren',
 };
 
+const decide = (loan: Loan, decision: 'approved' | 'declined') =>
+    router.patch(
+        route('manage.incoming.extension', [loan.id, loan.pending_extension!.id]),
+        { decision, decision_note: notes[loan.id] ?? '' },
+        { preserveScroll: true },
+    );
+
 const change = (loan: Loan, status: string) =>
     router.patch(route('manage.incoming.update', loan.id), { status, decision_note: notes[loan.id] ?? '' }, { preserveScroll: true });
 </script>
@@ -56,6 +63,18 @@ const change = (loan: Loan, status: string) =>
                     <span v-if="loan.requester_phone"> · {{ loan.requester_phone }}</span>
                 </p>
                 <p v-if="loan.message" class="mt-2 rounded-md bg-muted p-2 text-sm">{{ loan.message }}</p>
+
+                <div v-if="loan.pending_extension" class="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
+                    <p>
+                        <strong>Verlängerung angefragt:</strong> bis {{ date(loan.pending_extension.requested_end_date) }} (statt
+                        {{ date(loan.pending_extension.previous_end_date) }})
+                        <span v-if="loan.pending_extension.message">· „{{ loan.pending_extension.message }}“</span>
+                    </p>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <Button size="sm" @click="decide(loan, 'approved')">Verlängerung genehmigen</Button>
+                        <Button size="sm" variant="destructive" @click="decide(loan, 'declined')">Ablehnen</Button>
+                    </div>
+                </div>
 
                 <div v-if="loan.next?.length" class="mt-3 flex flex-wrap items-center gap-2">
                     <input

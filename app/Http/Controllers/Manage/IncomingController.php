@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Manage;
 
 use App\Enums\LoanStatus;
 use App\Http\Controllers\Controller;
+use App\Models\LoanExtension;
 use App\Models\LoanRequest;
+use App\Notifications\ExtensionDecided;
 use App\Notifications\LoanRequestDecided;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,13 +30,14 @@ class IncomingController extends Controller
 
         $loans = LoanRequest::whereHas('item', fn ($q) => $q->where('club_id', $request->user()->club_id))
             ->where('status', '!=', LoanStatus::Unverified->value)
-            ->with('item:id,name,quantity')
+            ->with(['item:id,name,quantity', 'pendingExtension'])
             ->orderByRaw("case status when 'pending' then 0 when 'approved' then 1 when 'picked_up' then 2 else 3 end")
             ->orderBy('start_date')
             ->get()
             ->map(fn (LoanRequest $l) => $l->toArray() + [
                 'status_label' => $l->status->label(),
                 'overdue' => $l->isOverdue(),
+                'pending_extension' => $l->pendingExtension,
                 'next' => self::TRANSITIONS[$l->status->value] ?? [],
             ]);
 
@@ -76,5 +79,42 @@ class IncomingController extends Controller
         }
 
         return back()->with('flash', 'Status aktualisiert: '.$loanRequest->status->label());
+    }
+
+    public function decideExtension(Request $request, LoanRequest $loanRequest, LoanExtension $extension): RedirectResponse
+    {
+        Gate::authorize('decide', $loanRequest);
+        abort_unless($extension->loan_request_id === $loanRequest->id && $extension->status === 'pending', 404);
+
+        $data = $request->validate([
+            'decision' => ['required', 'in:approved,declined'],
+            'decision_note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if ($data['decision'] === 'approved') {
+            $free = $loanRequest->item->availableQuantity(
+                $loanRequest->start_date->toDateString(),
+                $extension->requested_end_date->toDateString(),
+                $loanRequest->id,
+            );
+            if ($free < $loanRequest->quantity) {
+                return back()->withErrors(['status' => 'Im verlängerten Zeitraum ist der Bestand durch andere Genehmigungen belegt.']);
+            }
+
+            // neues Enddatum übernehmen; Erinnerung/Mahnung beginnen für den neuen Zeitraum von vorn
+            $loanRequest->update([
+                'end_date' => $extension->requested_end_date,
+                'reminded_at' => null,
+                'overdue_notified_at' => null,
+                'overdue_count' => 0,
+            ]);
+        }
+
+        $extension->update(['status' => $data['decision'], 'decision_note' => $data['decision_note'] ?? null]);
+
+        Notification::route('mail', $loanRequest->requester_email)
+            ->notify(new ExtensionDecided($extension->setRelation('loanRequest', $loanRequest->load('item.club'))));
+
+        return back()->with('flash', $data['decision'] === 'approved' ? 'Verlängerung genehmigt.' : 'Verlängerung abgelehnt.');
     }
 }

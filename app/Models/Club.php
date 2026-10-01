@@ -28,6 +28,16 @@ class Club extends Model
         });
     }
 
+    /** Benachrichtigt die Vereinsadresse und alle Admin-Konten (ohne Doppelung, wenn die Adresse gleich ist). */
+    public function notifyContacts(\Illuminate\Notifications\Notification $notification): void
+    {
+        \Illuminate\Support\Facades\Notification::route('mail', $this->email)->notify($notification);
+
+        foreach ($this->users()->where('role', 'club_admin')->where('email', '!=', $this->email)->get() as $admin) {
+            $admin->notify($notification);
+        }
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

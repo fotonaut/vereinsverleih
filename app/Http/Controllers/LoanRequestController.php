@@ -6,9 +6,11 @@ use App\Enums\LoanStatus;
 use App\Http\Requests\StoreLoanRequest;
 use App\Models\Item;
 use App\Models\LoanRequest;
+use App\Notifications\ExtensionRequested;
 use App\Notifications\LoanRequestReceived;
 use App\Notifications\LoanRequestVerify;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -69,6 +71,7 @@ class LoanRequestController extends Controller
     public function show(string $token): Response
     {
         $loan = LoanRequest::where('token', $token)->with('item.club')->firstOrFail();
+        $extension = $loan->extensions()->latest('id')->first();
 
         return Inertia::render('requests/Show', [
             'loan' => [
@@ -82,6 +85,15 @@ class LoanRequestController extends Controller
                 'decision_note' => $loan->decision_note,
                 'item' => ['id' => $loan->item->id, 'name' => $loan->item->name, 'location' => $loan->item->location],
                 'club' => ['name' => $loan->item->club->name, 'email' => $loan->item->club->email],
+                'canExtend' => in_array($loan->status, [LoanStatus::Approved, LoanStatus::PickedUp], true)
+                    && ! $loan->pendingExtension()->exists(),
+                'extension' => $extension ? [
+                    'status' => $extension->status,
+                    'statusLabel' => $extension->statusLabel(),
+                    'requested_end_date' => $extension->requested_end_date->toDateString(),
+                    'message' => $extension->message,
+                    'decision_note' => $extension->decision_note,
+                ] : null,
             ],
         ]);
     }
@@ -109,15 +121,40 @@ class LoanRequestController extends Controller
         return back()->with('flash', 'Anfrage storniert.');
     }
 
+    public function extend(Request $request, string $token): RedirectResponse
+    {
+        $loan = LoanRequest::where('token', $token)->with('item.club')->firstOrFail();
+
+        if (! in_array($loan->status, [LoanStatus::Approved, LoanStatus::PickedUp], true)) {
+            return back()->withErrors(['requested_end_date' => 'Eine Verlängerung ist nur für genehmigte oder laufende Ausleihen möglich.']);
+        }
+        if ($loan->pendingExtension()->exists()) {
+            return back()->withErrors(['requested_end_date' => 'Es liegt bereits eine offene Verlängerungsanfrage vor.']);
+        }
+
+        $data = $request->validate([
+            'requested_end_date' => ['required', 'date', 'after:'.$loan->end_date->toDateString(), 'after_or_equal:today'],
+            'message' => ['nullable', 'string', 'max:1000'],
+        ], [], ['requested_end_date' => 'Neues Rückgabedatum']);
+
+        // Vorab-Check: ist der Bestand im verlängerten Zeitraum frei?
+        if ($loan->item->availableQuantity($loan->start_date->toDateString(), $data['requested_end_date'], $loan->id) < $loan->quantity) {
+            return back()->withErrors(['requested_end_date' => 'Im verlängerten Zeitraum ist der Gegenstand bereits anderweitig vergeben.']);
+        }
+
+        $extension = $loan->extensions()->create([
+            'previous_end_date' => $loan->end_date,
+            'requested_end_date' => $data['requested_end_date'],
+            'message' => $data['message'] ?? null,
+        ]);
+
+        $loan->item->club->notifyContacts(new ExtensionRequested($extension->setRelation('loanRequest', $loan)));
+
+        return back()->with('flash', 'Verlängerung angefragt. Der Verein meldet sich bei dir.');
+    }
+
     private function notifyOwner(LoanRequest $loan): void
     {
-        $club = $loan->item->club;
-        $recipients = $club->users()->where('role', 'club_admin')->get();
-
-        Notification::route('mail', $club->email)->notify(new LoanRequestReceived($loan));
-        // Club-Admins, deren E-Mail nicht die Vereinsadresse ist, ebenfalls informieren
-        foreach ($recipients->where('email', '!=', $club->email) as $admin) {
-            $admin->notify(new LoanRequestReceived($loan));
-        }
+        $loan->item->club->notifyContacts(new LoanRequestReceived($loan));
     }
 }

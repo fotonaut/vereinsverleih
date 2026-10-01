@@ -34,11 +34,7 @@ class SendOverdueNotices extends Command
         foreach ($loans as $loan) {
             Notification::route('mail', $loan->requester_email)->notify(new LoanOverdue($loan));
 
-            $club = $loan->item->club;
-            Notification::route('mail', $club->email)->notify(new LoanOverdue($loan, forOwner: true));
-            foreach ($club->users()->where('role', 'club_admin')->where('email', '!=', $club->email)->get() as $admin) {
-                $admin->notify(new LoanOverdue($loan, forOwner: true));
-            }
+            $loan->item->club->notifyContacts(new LoanOverdue($loan, forOwner: true));
 
             $loan->forceFill(['overdue_notified_at' => now(), 'overdue_count' => $loan->overdue_count + 1])->save();
         }

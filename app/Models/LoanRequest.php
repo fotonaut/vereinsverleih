@@ -6,6 +6,8 @@ use App\Enums\LoanStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class LoanRequest extends Model
@@ -40,6 +42,16 @@ class LoanRequest extends Model
     public function isOverdue(): bool
     {
         return $this->status === LoanStatus::PickedUp && $this->end_date->lt(today());
+    }
+
+    public function extensions(): HasMany
+    {
+        return $this->hasMany(LoanExtension::class);
+    }
+
+    public function pendingExtension(): HasOne
+    {
+        return $this->hasOne(LoanExtension::class)->where('status', 'pending')->latestOfMany();
     }
 
     public function item(): BelongsTo

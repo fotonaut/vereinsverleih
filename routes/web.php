@@ -18,6 +18,8 @@ Route::post('katalog/{item}/anfragen', [LoanRequestController::class, 'store'])
 
 Route::get('anfragen/{token}', [LoanRequestController::class, 'show'])->name('requests.show');
 Route::get('anfragen/{token}/bestaetigen', [LoanRequestController::class, 'verify'])->name('requests.verify');
+Route::post('anfragen/{token}/verlaengern', [LoanRequestController::class, 'extend'])
+    ->middleware('throttle:6,1')->name('requests.extend');
 Route::post('anfragen/{token}/stornieren', [LoanRequestController::class, 'cancel'])->name('requests.cancel');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -28,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['gegenstaende' => 'item'])->except('show')->names('items');
         Route::get('eingang', [Manage\IncomingController::class, 'index'])->name('incoming.index');
         Route::patch('eingang/{loanRequest}', [Manage\IncomingController::class, 'update'])->name('incoming.update');
+        Route::patch('eingang/{loanRequest}/verlaengerung/{extension}', [Manage\IncomingController::class, 'decideExtension'])->name('incoming.extension');
         Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');
         Route::put('verein', [Manage\ClubController::class, 'update'])->name('club.update');
