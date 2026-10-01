@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CsvExport from '@/components/CsvExport.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ const change = (loan: Loan, status: string) =>
         <div class="space-y-4 p-4">
             <h1 class="text-2xl font-bold">Eingehende Anfragen</h1>
             <FlashMessage />
+            <CsvExport direction="incoming" />
             <p v-if="errors.status" class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">{{ errors.status }}</p>
             <p v-if="!loans.length" class="py-10 text-center text-muted-foreground">Noch keine Anfragen.</p>
 

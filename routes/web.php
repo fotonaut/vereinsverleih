@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('eingang/{loanRequest}', [Manage\IncomingController::class, 'update'])->name('incoming.update');
         Route::patch('eingang/{loanRequest}/verlaengerung/{extension}', [Manage\IncomingController::class, 'decideExtension'])->name('incoming.extension');
         Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
+        Route::get('export/ausleihen.csv', [Manage\ExportController::class, 'loans'])->name('export.loans');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');
         Route::put('verein', [Manage\ClubController::class, 'update'])->name('club.update');
         Route::get('mitglieder', [Manage\MemberController::class, 'index'])->name('members.index');

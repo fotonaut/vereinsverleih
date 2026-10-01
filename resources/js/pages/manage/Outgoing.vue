@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CsvExport from '@/components/CsvExport.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -19,6 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Meine Anfragen', href: '/verwal
                 <h1 class="text-2xl font-bold">Unsere Anfragen bei anderen Vereinen</h1>
                 <Button as-child><Link :href="route('catalog.index')">Katalog durchsuchen</Link></Button>
             </div>
+            <CsvExport direction="outgoing" />
             <p v-if="!loans.length" class="py-10 text-center text-muted-foreground">Ihr habt noch nichts angefragt.</p>
             <article v-for="loan in loans" :key="loan.id" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
                 <div>
