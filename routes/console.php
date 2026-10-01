@@ -21,3 +21,6 @@ Schedule::call(function () {
 
 // Erinnerung an die Rückgabe (Zeitraum endet morgen); der 5-Minuten-Cron löst das ab 08:00 aus.
 Schedule::command('loans:send-reminders')->dailyAt('08:00');
+
+// Mahnung bei überfälliger Rückgabe (max. 3×, Abstand 3 Tage).
+Schedule::command('loans:send-overdue')->dailyAt('08:10');

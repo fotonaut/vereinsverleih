@@ -43,7 +43,12 @@ const change = (loan: Loan, status: string) =>
                         </h2>
                         <p class="text-sm">{{ date(loan.start_date) }} – {{ date(loan.end_date) }}</p>
                     </div>
-                    <StatusBadge :status="loan.status" :label="loan.status_label" />
+                    <div class="flex items-center gap-2">
+                        <span v-if="loan.overdue" class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"
+                            >Überfällig</span
+                        >
+                        <StatusBadge :status="loan.status" :label="loan.status_label" />
+                    </div>
                 </div>
                 <p class="mt-2 text-sm">
                     <strong>{{ loan.requester_name }}</strong> ({{ loan.requester_type === 'club' ? 'Verein' : 'Privatperson' }}) ·

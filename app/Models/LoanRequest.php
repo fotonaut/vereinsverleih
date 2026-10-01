@@ -15,7 +15,7 @@ class LoanRequest extends Model
     protected $fillable = [
         'item_id', 'requester_user_id', 'requester_club_id', 'requester_type', 'requester_name',
         'requester_email', 'requester_phone', 'quantity', 'start_date', 'end_date', 'message',
-        'status', 'decision_note', 'reminded_at',
+        'status', 'decision_note', 'reminded_at', 'overdue_notified_at', 'overdue_count',
     ];
 
     protected function casts(): array
@@ -25,6 +25,7 @@ class LoanRequest extends Model
             'start_date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
             'reminded_at' => 'datetime',
+            'overdue_notified_at' => 'datetime',
         ];
     }
 
@@ -33,6 +34,12 @@ class LoanRequest extends Model
         static::creating(function (LoanRequest $r) {
             $r->token ??= Str::random(48);
         });
+    }
+
+    /** Ausgeliehen und Enddatum liegt in der Vergangenheit. */
+    public function isOverdue(): bool
+    {
+        return $this->status === LoanStatus::PickedUp && $this->end_date->lt(today());
     }
 
     public function item(): BelongsTo

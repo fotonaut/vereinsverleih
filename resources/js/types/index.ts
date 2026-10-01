@@ -85,6 +85,7 @@ export interface Loan {
     token: string;
     item: { id: number; name: string; club?: Club };
     next?: string[];
+    overdue?: boolean;
 }
 
 export interface Paginated<T> {

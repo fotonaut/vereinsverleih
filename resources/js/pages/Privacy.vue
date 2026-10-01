@@ -71,7 +71,8 @@ defineProps<{ operator: Operator; retentionDays: number }>();
             <section class="space-y-2">
                 <h2 class="text-lg font-semibold">6. E-Mail-Versand</h2>
                 <p>
-                    Systemmails (Bestätigung, Benachrichtigung über Anfragen und Entscheidungen, Erinnerung an die Rückgabe am Tag vor Ende des Zeitraums, Passwort-Reset, Einladungen) werden über den
+                    Systemmails (Bestätigung, Benachrichtigung über Anfragen und Entscheidungen, Erinnerung an die Rückgabe am Tag vor Ende des
+                    Zeitraums, Mahnung bei überfälliger Rückgabe (auch an den verleihenden Verein), Passwort-Reset, Einladungen) werden über den
                     SMTP-Server des Hosters versendet. Eine Weitergabe an sonstige Dritte findet nicht statt.
                 </p>
             </section>

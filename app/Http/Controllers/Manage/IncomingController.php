@@ -34,6 +34,7 @@ class IncomingController extends Controller
             ->get()
             ->map(fn (LoanRequest $l) => $l->toArray() + [
                 'status_label' => $l->status->label(),
+                'overdue' => $l->isOverdue(),
                 'next' => self::TRANSITIONS[$l->status->value] ?? [],
             ]);
 
