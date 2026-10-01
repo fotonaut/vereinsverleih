@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PublicLayout from '@/layouts/PublicLayout.vue';
+import { minFreeQuantity } from '@/lib/availability';
 import { date, euro, selectClass } from '@/lib/format';
 import type { Item } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Package } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const props = defineProps<{
     item: Item;
@@ -43,6 +45,18 @@ const pick = (day: string) => {
         form.end_date = day;
     }
 };
+
+// Gewählter Zeitraum für die gewünschte Menge schon belegt? Dann Warteliste anbieten.
+const rangeFull = computed(
+    () =>
+        !!form.start_date &&
+        !!form.end_date &&
+        form.end_date >= form.start_date &&
+        Number(form.quantity) <= props.item.quantity &&
+        minFreeQuantity(props.reservations, props.item.quantity, form.start_date, form.end_date) < Number(form.quantity),
+);
+
+const joinWaitlist = () => form.post(route('waitlist.store', props.item.id));
 
 const submit = () => form.post(route('requests.store', props.item.id));
 </script>
@@ -161,7 +175,19 @@ const submit = () => form.post(route('requests.store', props.item.id));
                         <!-- Honeypot gegen Spam-Bots -->
                         <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
 
-                        <Button type="submit" :disabled="form.processing">Anfrage senden</Button>
+                        <div
+                            v-if="rangeFull"
+                            class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+                        >
+                            <p>
+                                Im gewählten Zeitraum ist der Gegenstand schon vergeben. Wir benachrichtigen dich per E-Mail, sobald etwas frei wird
+                                (z. B. bei Absage).
+                            </p>
+                            <Button type="button" variant="outline" class="mt-2" :disabled="form.processing" @click="joinWaitlist"
+                                >Auf die Warteliste setzen</Button
+                            >
+                        </div>
+                        <Button v-else type="submit" :disabled="form.processing">Anfrage senden</Button>
                         <p v-if="canRequestAsPrivate" class="text-xs text-muted-foreground">
                             Du bekommst eine E-Mail, mit der du die Anfrage bestätigst. Erst danach sieht der Verein sie. Deine Angaben gehen an den
                             verleihenden Verein, mehr dazu in der <Link :href="route('privacy')" class="underline">Datenschutzerklärung</Link>.

@@ -24,3 +24,14 @@ Schedule::command('loans:send-reminders')->dailyAt('08:00');
 
 // Mahnung bei überfälliger Rückgabe (max. 3×, Abstand 3 Tage).
 Schedule::command('loans:send-overdue')->dailyAt('08:10');
+
+// Warteliste aufräumen: abgelaufene Zeiträume schließen, unbestätigte Einträge nach Frist löschen.
+Schedule::call(function () {
+    App\Models\WaitlistEntry::whereIn('status', ['unverified', 'waiting'])
+        ->whereDate('end_date', '<', today())
+        ->update(['status' => 'expired']);
+
+    App\Models\WaitlistEntry::where('status', 'unverified')
+        ->where('created_at', '<', now()->subDays(config('imprint.unverified_retention_days')))
+        ->delete();
+})->daily()->name('cleanup-waitlist');

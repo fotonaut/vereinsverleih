@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoanRequestController;
 use App\Http\Controllers\Manage;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -15,6 +16,12 @@ Route::get('katalog', [CatalogController::class, 'index'])->name('catalog.index'
 Route::get('katalog/{item}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::post('katalog/{item}/anfragen', [LoanRequestController::class, 'store'])
     ->middleware('throttle:6,1')->name('requests.store');
+
+Route::post('katalog/{item}/warteliste', [WaitlistController::class, 'store'])
+    ->middleware('throttle:6,1')->name('waitlist.store');
+Route::get('warteliste/{token}', [WaitlistController::class, 'show'])->name('waitlist.show');
+Route::get('warteliste/{token}/bestaetigen', [WaitlistController::class, 'verify'])->name('waitlist.verify');
+Route::post('warteliste/{token}/abmelden', [WaitlistController::class, 'cancel'])->name('waitlist.cancel');
 
 Route::get('anfragen/{token}', [LoanRequestController::class, 'show'])->name('requests.show');
 Route::get('anfragen/{token}/bestaetigen', [LoanRequestController::class, 'verify'])->name('requests.verify');

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLoanRequest;
 use App\Models\Item;
 use App\Models\LoanRequest;
 use App\Notifications\ExtensionRequested;
+use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestReceived;
 use App\Notifications\LoanRequestVerify;
 use Illuminate\Http\RedirectResponse;
@@ -115,7 +116,12 @@ class LoanRequestController extends Controller
         $loan = LoanRequest::where('token', $token)->firstOrFail();
 
         if (in_array($loan->status, [LoanStatus::Unverified, LoanStatus::Pending, LoanStatus::Approved], true)) {
+            $freesStock = $loan->status === LoanStatus::Approved;
             $loan->update(['status' => LoanStatus::Cancelled]);
+
+            if ($freesStock) {
+                app(WaitlistNotifier::class)->check($loan->item);
+            }
         }
 
         return back()->with('flash', 'Anfrage storniert.');

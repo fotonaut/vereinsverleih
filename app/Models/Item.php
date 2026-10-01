@@ -47,6 +47,11 @@ class Item extends Model
         return $this->hasMany(LoanRequest::class);
     }
 
+    public function waitlistEntries(): HasMany
+    {
+        return $this->hasMany(WaitlistEntry::class);
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         return $this->image_path ? Storage::disk('public')->url($this->image_path) : null;

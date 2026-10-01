@@ -30,6 +30,14 @@ class ItemCalendarController extends Controller
                 'pending' => $l->status->value === 'pending',
                 'label' => $l->requester_name,
             ])->values(),
+            'waitlist' => $item->waitlistEntries()->where('status', 'waiting')->orderBy('created_at')->get()
+                ->map(fn ($w) => [
+                    'id' => $w->id,
+                    'requester' => $w->requester_name,
+                    'quantity' => $w->quantity,
+                    'start_date' => $w->start_date->toDateString(),
+                    'end_date' => $w->end_date->toDateString(),
+                ])->values(),
             'loans' => $loans->map(fn ($l) => [
                 'id' => $l->id,
                 'requester' => $l->requester_name,

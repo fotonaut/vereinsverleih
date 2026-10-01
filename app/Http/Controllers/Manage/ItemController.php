@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreItemRequest;
 use App\Models\Category;
 use App\Models\Item;
+use App\Services\WaitlistNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -57,6 +58,9 @@ class ItemController extends Controller
             Storage::disk('public')->delete($item->image_path);
         }
         $item->update($payload);
+
+        // Mehr Bestand oder wieder aktiv: Warteliste prüfen
+        app(WaitlistNotifier::class)->check($item->refresh());
 
         return to_route('manage.items.index')->with('flash', 'Änderungen gespeichert.');
     }

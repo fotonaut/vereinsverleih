@@ -59,6 +59,17 @@ defineProps<{ operator: Operator; retentionDays: number }>();
             </section>
 
             <section class="space-y-2">
+                <h2 class="text-lg font-semibold">4a. Warteliste</h2>
+                <p>
+                    Trägst du dich für einen belegten Zeitraum auf die Warteliste ein, speichern wir Name, E-Mail-Adresse, Zeitraum und Menge.
+                    Privatpersonen bestätigen den Eintrag per Link. Wir informieren dich einmalig per E-Mail, sobald der Gegenstand frei wird (Art. 6
+                    Abs. 1 lit. b DSGVO). Einträge werden nach Ablauf des Zeitraums geschlossen; unbestätigte Einträge werden nach
+                    {{ retentionDays }} Tagen gelöscht. Du kannst dich jederzeit über den Link in der E-Mail abmelden. Der verleihende Verein sieht
+                    den Namen der Wartenden.
+                </p>
+            </section>
+
+            <section class="space-y-2">
                 <h2 class="text-lg font-semibold">5. Vereinskonto</h2>
                 <p>
                     Bei der Registrierung werden Vereinsangaben, Name, E-Mail-Adresse und ein verschlüsselt (Hash) gespeichertes Passwort verarbeitet

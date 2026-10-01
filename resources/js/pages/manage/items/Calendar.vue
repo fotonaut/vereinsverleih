@@ -10,6 +10,7 @@ import { Head, Link } from '@inertiajs/vue3';
 const props = defineProps<{
     item: { id: number; name: string; quantity: number };
     reservations: CalendarReservation[];
+    waitlist: { id: number; requester: string; quantity: number; start_date: string; end_date: string }[];
     loans: { id: number; requester: string; status: string; status_label: string; quantity: number; start_date: string; end_date: string }[];
 }>();
 
@@ -44,6 +45,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <StatusBadge :status="l.status" :label="l.status_label" />
                     </li>
                 </ul>
+            </section>
+
+            <section v-if="waitlist.length">
+                <h2 class="mb-2 font-semibold">Warteliste</h2>
+                <ul class="divide-y rounded-xl border text-sm">
+                    <li v-for="w in waitlist" :key="w.id" class="p-3">
+                        <strong>{{ date(w.start_date) }} – {{ date(w.end_date) }}</strong> · {{ w.requester }} · {{ w.quantity }}×
+                    </li>
+                </ul>
+                <p class="mt-2 text-xs text-muted-foreground">Wird etwas frei, wird die erste passende Person automatisch per E-Mail informiert.</p>
             </section>
         </div>
     </AppLayout>

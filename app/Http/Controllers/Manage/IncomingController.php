@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LoanExtension;
 use App\Models\LoanRequest;
 use App\Notifications\ExtensionDecided;
+use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestDecided;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -76,6 +77,11 @@ class IncomingController extends Controller
 
         if (in_array($data['status'], ['approved', 'declined', 'cancelled'], true)) {
             Notification::route('mail', $loanRequest->requester_email)->notify(new LoanRequestDecided($loanRequest->load('item.club')));
+        }
+
+        // Wird dadurch Bestand frei, die Warteliste informieren
+        if (in_array($data['status'], ['declined', 'cancelled', 'returned'], true)) {
+            app(WaitlistNotifier::class)->check($loanRequest->item);
         }
 
         return back()->with('flash', 'Status aktualisiert: '.$loanRequest->status->label());
