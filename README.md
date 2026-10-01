@@ -2,6 +2,8 @@
 
 Verleihplattform für Vereinsinventar: Vereine tragen ihren Bestand ein (Zelte, Bänke, Technik, Spiele …), legen pro Gegenstand fest, **wer ihn leihen darf**, und andere Vereine oder Privatpersonen stellen Ausleihanfragen.
 
+**Onepager:** <https://fotonaut.github.io/vereinsverleih/>
+
 Pro Gegenstand einstellbar:
 
 | Verleih an | Bedeutung |
