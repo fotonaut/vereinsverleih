@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('impressum', [PageController::class, 'imprint'])->name('imprint');
+Route::get('datenschutz', [PageController::class, 'privacy'])->name('privacy');
 
 Route::get('katalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('katalog/{item}', [CatalogController::class, 'show'])->name('catalog.show');

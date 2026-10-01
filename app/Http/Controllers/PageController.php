@@ -22,6 +22,19 @@ class PageController extends Controller
 
     public function imprint(): Response
     {
-        return Inertia::render('Imprint');
+        return Inertia::render('Imprint', ['operator' => $this->operator()]);
+    }
+
+    public function privacy(): Response
+    {
+        return Inertia::render('Privacy', [
+            'operator' => $this->operator(),
+            'retentionDays' => config('imprint.unverified_retention_days'),
+        ]);
+    }
+
+    private function operator(): array
+    {
+        return config('imprint');
     }
 }

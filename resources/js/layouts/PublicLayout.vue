@@ -34,7 +34,8 @@ const page = usePage<SharedData>();
         <footer class="border-t py-6 text-center text-sm text-muted-foreground">
             Vereinsverleih · Open Source (MIT) ·
             <a href="https://github.com/fotonaut/vereinsverleih" class="underline" target="_blank" rel="noopener">GitHub</a> ·
-            <Link :href="route('imprint')" class="underline">Impressum</Link>
+            <Link :href="route('imprint')" class="underline">Impressum</Link> ·
+            <Link :href="route('privacy')" class="underline">Datenschutz</Link>
         </footer>
     </div>
 </template>

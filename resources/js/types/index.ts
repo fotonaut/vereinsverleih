@@ -92,3 +92,14 @@ export interface Paginated<T> {
     links: { url: string | null; label: string; active: boolean }[];
     total: number;
 }
+
+export interface Operator {
+    brand: string;
+    name: string;
+    street: string;
+    city: string;
+    country: string;
+    email: string;
+    phone: string;
+    hoster: string;
+}

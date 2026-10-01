@@ -140,7 +140,8 @@ const submit = () => form.post(route('requests.store', props.item.id));
 
                         <Button type="submit" :disabled="form.processing">Anfrage senden</Button>
                         <p v-if="canRequestAsPrivate" class="text-xs text-muted-foreground">
-                            Du bekommst eine E-Mail, mit der du die Anfrage bestätigst. Erst danach sieht der Verein sie.
+                            Du bekommst eine E-Mail, mit der du die Anfrage bestätigst. Erst danach sieht der Verein sie. Deine Angaben gehen an den
+                            verleihenden Verein, mehr dazu in der <Link :href="route('privacy')" class="underline">Datenschutzerklärung</Link>.
                         </p>
                     </form>
                 </div>
