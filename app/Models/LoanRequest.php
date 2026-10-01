@@ -15,7 +15,7 @@ class LoanRequest extends Model
     protected $fillable = [
         'item_id', 'requester_user_id', 'requester_club_id', 'requester_type', 'requester_name',
         'requester_email', 'requester_phone', 'quantity', 'start_date', 'end_date', 'message',
-        'status', 'decision_note',
+        'status', 'decision_note', 'reminded_at',
     ];
 
     protected function casts(): array
@@ -24,6 +24,7 @@ class LoanRequest extends Model
             'status' => LoanStatus::class,
             'start_date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
+            'reminded_at' => 'datetime',
         ];
     }
 

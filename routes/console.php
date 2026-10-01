@@ -18,3 +18,6 @@ Schedule::call(function () {
         ->where('created_at', '<', now()->subDays(config('imprint.unverified_retention_days')))
         ->delete();
 })->daily()->name('prune-unverified-requests');
+
+// Erinnerung an die Rückgabe (Zeitraum endet morgen); der 5-Minuten-Cron löst das ab 08:00 aus.
+Schedule::command('loans:send-reminders')->dailyAt('08:00');
