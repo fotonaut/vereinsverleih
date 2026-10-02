@@ -21,6 +21,7 @@ Pro Gegenstand einstellbar:
 - Anfrage-Workflow: *angefragt → genehmigt → ausgeliehen → zurückgegeben* (oder abgelehnt/storniert)
 - Bestandsprüfung je Zeitraum (keine Überbuchung), **Verfügbarkeitskalender** pro Gegenstand (öffentlich mit Klick-Auswahl, im Verein mit Namen und offenen Anfragen)
 - **Rückgabe-Erinnerung** am Tag vor Ende, **Mahnung** bei Überfälligkeit (max. 3×, auch an den Verein), **Verlängerungsanfragen** mit Genehmigung
+- **Wiederholungs-Ausleihen** (wöchentlich, alle 2 Wochen, monatlich, bis 12 Termine): alle Termine werden auf einmal geprüft (alles oder nichts), der Verein entscheidet über die ganze Serie, die Ausleihenden bekommen gebündelte Mails
 - **Warteliste** für belegte Zeiträume: bei Absage, Storno, Rückgabe oder mehr Bestand wird der Erste in der Schlange per E-Mail informiert (Gäste mit E-Mail-Bestätigung)
 - **CSV-Export** der Ausleihen (Excel-tauglich, Filter Status/Zeitraum)
 - Privatpersonen brauchen kein Konto: Anfrage wird per E-Mail-Link bestätigt (Spam-Schutz), danach Status-Seite per Token-Link

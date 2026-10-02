@@ -10,14 +10,20 @@ use App\Notifications\ExtensionRequested;
 use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestReceived;
 use App\Notifications\LoanRequestVerify;
+use App\Support\LoanSeries;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LoanRequestController extends Controller
 {
+    private const CANCELLABLE = [LoanStatus::Unverified, LoanStatus::Pending, LoanStatus::Approved];
+
     public function store(StoreLoanRequest $request, Item $item): RedirectResponse
     {
         abort_unless($item->active, 404);
@@ -39,11 +45,31 @@ class LoanRequestController extends Controller
         if ($data['quantity'] > $item->quantity) {
             return back()->withErrors(['quantity' => "Es sind insgesamt nur {$item->quantity} Stück vorhanden."]);
         }
-        if ($item->availableQuantity($data['start_date'], $data['end_date']) < $data['quantity']) {
-            return back()->withErrors(['start_date' => 'Im gewählten Zeitraum ist nicht genug Bestand verfügbar.']);
+        // Einzeltermin oder Serie (Wiederholung) in die zu buchenden Zeiträume auflösen
+        $isSeries = ! empty($data['repeat']);
+        $occurrences = $isSeries
+            ? LoanSeries::occurrences($data['start_date'], $data['end_date'], $data['repeat'], (int) $data['repeat_count'])
+            : [['start' => $data['start_date'], 'end' => $data['end_date']]];
+
+        if ($isSeries) {
+            $durationDays = (int) Carbon::parse($data['start_date'])->diffInDays(Carbon::parse($data['end_date']));
+            if ($durationDays >= LoanSeries::minGapDays($data['repeat'])) {
+                return back()->withErrors(['repeat' => 'Der Zeitraum ist länger als der Abstand der Wiederholung – die Termine würden sich überlappen.']);
+            }
         }
 
-        $loan = LoanRequest::create([
+        // Alles-oder-nichts: nicht verfügbare Termine sammeln und melden
+        $conflicts = collect($occurrences)
+            ->filter(fn ($o) => $item->availableQuantity($o['start'], $o['end']) < $data['quantity'])
+            ->map(fn ($o) => Carbon::parse($o['start'])->format('d.m.Y'));
+        if ($conflicts->isNotEmpty()) {
+            return back()->withErrors([$isSeries ? 'repeat' : 'start_date' => $isSeries
+                ? 'Nicht für alle Termine verfügbar, belegt ab: '.$conflicts->implode(', ').'. Wähle andere Termine oder weniger Wiederholungen.'
+                : 'Im gewählten Zeitraum ist nicht genug Bestand verfügbar.']);
+        }
+
+        $seriesId = $isSeries ? (string) Str::uuid() : null;
+        $loans = DB::transaction(fn () => collect($occurrences)->map(fn ($o) => LoanRequest::create([
             'item_id' => $item->id,
             'requester_user_id' => $user?->id,
             'requester_club_id' => $user?->club_id,
@@ -52,12 +78,15 @@ class LoanRequestController extends Controller
             'requester_email' => $user?->email ?? $data['requester_email'],
             'requester_phone' => $data['requester_phone'] ?? null,
             'quantity' => $data['quantity'],
-            'start_date' => $data['start_date'],
-            'end_date' => $data['end_date'],
+            'start_date' => $o['start'],
+            'end_date' => $o['end'],
             'message' => $data['message'] ?? null,
             'status' => $user ? LoanStatus::Pending : LoanStatus::Unverified,
-        ]);
+            'series_id' => $seriesId,
+        ])));
+        $loan = $loans->first();
 
+        // Pro Serie genau eine Benachrichtigung (enthält alle Termine)
         if ($user) {
             $this->notifyOwner($loan);
         } else {
@@ -65,7 +94,7 @@ class LoanRequestController extends Controller
         }
 
         return redirect()->route('requests.show', $loan->token)->with('flash', $user
-            ? 'Anfrage gesendet. Der Verein meldet sich bei dir.'
+            ? ($isSeries ? 'Serien-Anfrage gesendet ('.$loans->count().' Termine). Der Verein meldet sich bei dir.' : 'Anfrage gesendet. Der Verein meldet sich bei dir.')
             : 'Fast geschafft! Bitte bestätige deine Anfrage über den Link in der E-Mail.');
     }
 
@@ -86,6 +115,15 @@ class LoanRequestController extends Controller
                 'decision_note' => $loan->decision_note,
                 'item' => ['id' => $loan->item->id, 'name' => $loan->item->name, 'location' => $loan->item->location],
                 'club' => ['name' => $loan->item->club->name, 'email' => $loan->item->club->email],
+                'series' => $loan->series_id ? $loan->seriesLoans()->map(fn ($l) => [
+                    'token' => $l->token,
+                    'start_date' => $l->start_date->toDateString(),
+                    'end_date' => $l->end_date->toDateString(),
+                    'status' => $l->status->value,
+                    'statusLabel' => $l->status->label(),
+                    'current' => $l->is($loan),
+                ])->values() : null,
+                'canCancelSeries' => $loan->series_id && $loan->seriesLoans()->contains(fn ($l) => in_array($l->status, self::CANCELLABLE, true)),
                 'canExtend' => in_array($loan->status, [LoanStatus::Approved, LoanStatus::PickedUp], true)
                     && ! $loan->pendingExtension()->exists(),
                 'extension' => $extension ? [
@@ -104,8 +142,11 @@ class LoanRequestController extends Controller
         $loan = LoanRequest::where('token', $token)->with('item.club')->firstOrFail();
 
         if ($loan->status === LoanStatus::Unverified) {
-            $loan->update(['status' => LoanStatus::Pending]);
-            $this->notifyOwner($loan);
+            // Bei einer Serie gilt die Bestätigung für alle Termine, der Verein wird einmal informiert
+            LoanRequest::where($loan->series_id ? 'series_id' : 'id', $loan->series_id ?? $loan->id)
+                ->where('status', LoanStatus::Unverified->value)
+                ->update(['status' => LoanStatus::Pending->value]);
+            $this->notifyOwner($loan->refresh());
         }
 
         return redirect()->route('requests.show', $token)->with('flash', 'Danke! Deine Anfrage wurde an den Verein übermittelt.');
@@ -125,6 +166,23 @@ class LoanRequestController extends Controller
         }
 
         return back()->with('flash', 'Anfrage storniert.');
+    }
+
+    /** Storniert alle noch stornierbaren Termine der Serie. */
+    public function cancelSeries(string $token): RedirectResponse
+    {
+        $loan = LoanRequest::where('token', $token)->firstOrFail();
+        abort_unless($loan->series_id, 404);
+
+        $loans = $loan->seriesLoans()->filter(fn ($l) => in_array($l->status, self::CANCELLABLE, true));
+        $freesStock = $loans->contains(fn ($l) => $l->status === LoanStatus::Approved);
+        $loans->each->update(['status' => LoanStatus::Cancelled]);
+
+        if ($freesStock) {
+            app(WaitlistNotifier::class)->check($loan->item);
+        }
+
+        return back()->with('flash', $loans->count().' Termin(e) der Serie storniert.');
     }
 
     public function extend(Request $request, string $token): RedirectResponse

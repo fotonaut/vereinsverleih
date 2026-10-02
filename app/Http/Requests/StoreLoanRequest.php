@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Support\LoanSeries;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreLoanRequest extends FormRequest
 {
@@ -23,6 +25,8 @@ class StoreLoanRequest extends FormRequest
             'start_date' => ['required', 'date', 'after_or_equal:today'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'message' => ['nullable', 'string', 'max:2000'],
+            'repeat' => ['nullable', Rule::in(array_keys(LoanSeries::INTERVALS))],
+            'repeat_count' => ['nullable', 'required_with:repeat', 'integer', 'min:2', 'max:'.LoanSeries::MAX_OCCURRENCES],
             // Honeypot: Bots füllen das Feld aus
             'website' => ['prohibited'],
         ];

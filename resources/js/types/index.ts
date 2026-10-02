@@ -86,6 +86,8 @@ export interface Loan {
     item: { id: number; name: string; club?: Club };
     next?: string[];
     overdue?: boolean;
+    series_id?: string | null;
+    series_total?: number | null;
     pending_extension?: { id: number; requested_end_date: string; previous_end_date: string; message: string | null } | null;
 }
 

@@ -30,6 +30,9 @@ const decide = (loan: Loan, decision: 'approved' | 'declined') =>
         { preserveScroll: true },
     );
 
+const decideSeries = (loan: Loan, decision: 'approved' | 'declined') =>
+    router.patch(route('manage.incoming.series', loan.series_id!), { decision, decision_note: notes[loan.id] ?? '' }, { preserveScroll: true });
+
 const change = (loan: Loan, status: string) =>
     router.patch(route('manage.incoming.update', loan.id), { status, decision_note: notes[loan.id] ?? '' }, { preserveScroll: true });
 </script>
@@ -53,6 +56,9 @@ const change = (loan: Loan, status: string) =>
                         <p class="text-sm">{{ date(loan.start_date) }} – {{ date(loan.end_date) }}</p>
                     </div>
                     <div class="flex items-center gap-2">
+                        <span v-if="loan.series_total" class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                            >Serie · {{ loan.series_total }} Termine</span
+                        >
                         <span v-if="loan.overdue" class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"
                             >Überfällig</span
                         >
@@ -65,6 +71,15 @@ const change = (loan: Loan, status: string) =>
                     <span v-if="loan.requester_phone"> · {{ loan.requester_phone }}</span>
                 </p>
                 <p v-if="loan.message" class="mt-2 rounded-md bg-muted p-2 text-sm">{{ loan.message }}</p>
+
+                <div
+                    v-if="loan.series_total && loan.status === 'pending'"
+                    class="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-blue-300 bg-blue-50 p-3 text-sm dark:bg-blue-950/30"
+                >
+                    <span class="mr-auto">Teil einer Serie mit {{ loan.series_total }} Terminen – gemeinsam entscheiden:</span>
+                    <Button size="sm" @click="decideSeries(loan, 'approved')">Alle offenen Termine genehmigen</Button>
+                    <Button size="sm" variant="destructive" @click="decideSeries(loan, 'declined')">Ganze Serie ablehnen</Button>
+                </div>
 
                 <div v-if="loan.pending_extension" class="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
                     <p>

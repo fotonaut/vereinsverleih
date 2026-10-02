@@ -22,12 +22,18 @@ const props = defineProps<{
         item: { id: number; name: string; location: string | null };
         club: { name: string; email: string };
         canExtend: boolean;
+        canCancelSeries: boolean;
+        series: { token: string; start_date: string; end_date: string; status: string; statusLabel: string; current: boolean }[] | null;
         extension: { status: string; statusLabel: string; requested_end_date: string; message: string | null; decision_note: string | null } | null;
     };
 }>();
 
 const extForm = useForm({ requested_end_date: '', message: '' });
 const requestExtension = () => extForm.post(route('requests.extend', props.loan.token), { preserveScroll: true, onSuccess: () => extForm.reset() });
+
+const cancelSeries = () => {
+    if (window.confirm('Alle noch offenen Termine der Serie stornieren?')) router.post(route('requests.cancel-series', props.loan.token));
+};
 
 const cancellable = computed(() => ['unverified', 'pending', 'approved'].includes(props.loan.status));
 const cancel = () => {
@@ -69,6 +75,19 @@ const cancel = () => {
             <p v-if="loan.status === 'unverified'" class="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
                 Bitte bestätige deine Anfrage über den Link in der E-Mail, die wir dir geschickt haben.
             </p>
+            <div v-if="loan.series" class="mt-4 rounded-md border p-3 text-sm">
+                <h2 class="mb-2 font-semibold">Serie mit {{ loan.series.length }} Terminen</h2>
+                <ul class="space-y-1">
+                    <li v-for="s in loan.series" :key="s.token" class="flex items-center justify-between gap-2" :class="s.current && 'font-semibold'">
+                        <Link v-if="!s.current" :href="route('requests.show', s.token)" class="underline"
+                            >{{ date(s.start_date) }} – {{ date(s.end_date) }}</Link
+                        >
+                        <span v-else>{{ date(s.start_date) }} – {{ date(s.end_date) }} (dieser Termin)</span>
+                        <StatusBadge :status="s.status" :label="s.statusLabel" />
+                    </li>
+                </ul>
+                <Button v-if="loan.canCancelSeries" variant="destructive" size="sm" class="mt-3" @click="cancelSeries">Ganze Serie stornieren</Button>
+            </div>
             <div v-if="loan.extension" class="mt-4 rounded-md border p-3 text-sm">
                 <strong>Verlängerung bis {{ date(loan.extension.requested_end_date) }}:</strong> {{ loan.extension.statusLabel }}
                 <p v-if="loan.extension.decision_note" class="mt-1 text-muted-foreground">Hinweis des Vereins: {{ loan.extension.decision_note }}</p>

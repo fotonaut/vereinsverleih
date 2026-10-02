@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Models\LoanExtension;
 use App\Models\LoanRequest;
 use App\Notifications\ExtensionDecided;
+use App\Notifications\LoanSeriesDecided;
 use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestDecided;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
@@ -29,6 +31,8 @@ class IncomingController extends Controller
     {
         abort_unless($request->user()->club_id, 403);
 
+        $seriesCounts = LoanRequest::whereNotNull('series_id')->selectRaw('series_id, count(*) as n')->groupBy('series_id')->pluck('n', 'series_id');
+
         $loans = LoanRequest::whereHas('item', fn ($q) => $q->where('club_id', $request->user()->club_id))
             ->where('status', '!=', LoanStatus::Unverified->value)
             ->with(['item:id,name,quantity', 'pendingExtension'])
@@ -38,6 +42,7 @@ class IncomingController extends Controller
             ->map(fn (LoanRequest $l) => $l->toArray() + [
                 'status_label' => $l->status->label(),
                 'overdue' => $l->isOverdue(),
+                'series_total' => $l->series_id ? (int) ($seriesCounts[$l->series_id] ?? 1) : null,
                 'pending_extension' => $l->pendingExtension,
                 'next' => self::TRANSITIONS[$l->status->value] ?? [],
             ]);
@@ -122,5 +127,47 @@ class IncomingController extends Controller
             ->notify(new ExtensionDecided($extension->setRelation('loanRequest', $loanRequest->load('item.club'))));
 
         return back()->with('flash', $data['decision'] === 'approved' ? 'Verlängerung genehmigt.' : 'Verlängerung abgelehnt.');
+    }
+
+    /** Entscheidung über alle noch offenen Termine einer Serie auf einmal (genehmigen/ablehnen). */
+    public function decideSeries(Request $request, string $series): RedirectResponse
+    {
+        $loans = LoanRequest::where('series_id', $series)->with('item.club')->orderBy('start_date')->get();
+        abort_if($loans->isEmpty(), 404);
+        Gate::authorize('decide', $loans->first());
+
+        $data = $request->validate([
+            'decision' => ['required', 'in:approved,declined'],
+            'decision_note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $pending = $loans->where('status', LoanStatus::Pending);
+        if ($pending->isEmpty()) {
+            return back()->withErrors(['status' => 'Für diese Serie gibt es keine offenen Termine mehr.']);
+        }
+
+        if ($data['decision'] === 'approved') {
+            $conflicts = $pending->filter(fn (LoanRequest $l) => $l->item->availableQuantity(
+                $l->start_date->toDateString(), $l->end_date->toDateString(), $l->id) < $l->quantity)
+                ->map(fn (LoanRequest $l) => $l->start_date->format('d.m.Y'));
+
+            if ($conflicts->isNotEmpty()) {
+                return back()->withErrors(['status' => 'Bestand an folgenden Terminen belegt, nichts wurde genehmigt: '.$conflicts->implode(', ').'.']);
+            }
+        }
+
+        DB::transaction(fn () => $pending->each->update([
+            'status' => $data['decision'],
+            'decision_note' => $data['decision_note'] ?? null,
+        ]));
+
+        Notification::route('mail', $loans->first()->requester_email)
+            ->notify(new LoanSeriesDecided($series, $data['decision'], $data['decision_note'] ?? null));
+
+        if ($data['decision'] === 'declined') {
+            app(WaitlistNotifier::class)->check($loans->first()->item);
+        }
+
+        return back()->with('flash', $pending->count().' Termin(e) '.($data['decision'] === 'approved' ? 'genehmigt' : 'abgelehnt').'.');
     }
 }

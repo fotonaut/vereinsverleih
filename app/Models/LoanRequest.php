@@ -17,7 +17,7 @@ class LoanRequest extends Model
     protected $fillable = [
         'item_id', 'requester_user_id', 'requester_club_id', 'requester_type', 'requester_name',
         'requester_email', 'requester_phone', 'quantity', 'start_date', 'end_date', 'message',
-        'status', 'decision_note', 'reminded_at', 'overdue_notified_at', 'overdue_count',
+        'status', 'decision_note', 'reminded_at', 'overdue_notified_at', 'overdue_count', 'series_id',
     ];
 
     protected function casts(): array
@@ -42,6 +42,16 @@ class LoanRequest extends Model
     public function isOverdue(): bool
     {
         return $this->status === LoanStatus::PickedUp && $this->end_date->lt(today());
+    }
+
+    /** Alle Termine der Serie (inkl. dieses), sonst nur dieser. */
+    public function seriesLoans(): \Illuminate\Support\Collection
+    {
+        if (! $this->series_id) {
+            return collect([$this]);
+        }
+
+        return static::where('series_id', $this->series_id)->orderBy('start_date')->orderBy('id')->get();
     }
 
     public function extensions(): HasMany

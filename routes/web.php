@@ -27,6 +27,7 @@ Route::get('anfragen/{token}', [LoanRequestController::class, 'show'])->name('re
 Route::get('anfragen/{token}/bestaetigen', [LoanRequestController::class, 'verify'])->name('requests.verify');
 Route::post('anfragen/{token}/verlaengern', [LoanRequestController::class, 'extend'])
     ->middleware('throttle:6,1')->name('requests.extend');
+Route::post('anfragen/{token}/serie-stornieren', [LoanRequestController::class, 'cancelSeries'])->name('requests.cancel-series');
 Route::post('anfragen/{token}/stornieren', [LoanRequestController::class, 'cancel'])->name('requests.cancel');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('eingang', [Manage\IncomingController::class, 'index'])->name('incoming.index');
         Route::patch('eingang/{loanRequest}', [Manage\IncomingController::class, 'update'])->name('incoming.update');
         Route::patch('eingang/{loanRequest}/verlaengerung/{extension}', [Manage\IncomingController::class, 'decideExtension'])->name('incoming.extension');
+        Route::patch('eingang/serie/{series}', [Manage\IncomingController::class, 'decideSeries'])->name('incoming.series');
         Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
         Route::get('export/ausleihen.csv', [Manage\ExportController::class, 'loans'])->name('export.loans');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');

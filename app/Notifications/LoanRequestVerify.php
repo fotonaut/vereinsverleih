@@ -21,10 +21,15 @@ class LoanRequestVerify extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $series = $this->request->seriesLoans();
+        $when = $series->count() > 1
+            ? 'in einer Serie mit '.$series->count().' Terminen ('.$series->first()->start_date->format('d.m.Y').' bis '.$series->last()->end_date->format('d.m.Y').') angefragt'
+            : 'vom '.$this->request->start_date->format('d.m.Y').' bis '.$this->request->end_date->format('d.m.Y').' angefragt';
+
         return (new MailMessage)
             ->subject('Bitte bestätige deine Anfrage: '.$this->request->item->name)
             ->greeting('Hallo '.$this->request->requester_name.',')
-            ->line('du hast „'.$this->request->item->name.'“ vom '.$this->request->start_date->format('d.m.Y').' bis '.$this->request->end_date->format('d.m.Y').' angefragt.')
+            ->line('du hast „'.$this->request->item->name.'“ '.$when.'.')
             ->line('Damit der Verein deine Anfrage sieht, bestätige bitte deine E-Mail-Adresse.')
             ->action('Anfrage bestätigen', route('requests.verify', $this->request->token))
             ->line('Wenn du die Anfrage nicht gestellt hast, ignoriere diese E-Mail einfach.');

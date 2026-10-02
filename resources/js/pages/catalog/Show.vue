@@ -33,6 +33,8 @@ const form = useForm({
     start_date: '',
     end_date: '',
     message: '',
+    repeat: '',
+    repeat_count: 4,
     website: '', // Honeypot
 });
 
@@ -52,6 +54,7 @@ const rangeFull = computed(
         !!form.start_date &&
         !!form.end_date &&
         form.end_date >= form.start_date &&
+        !form.repeat &&
         Number(form.quantity) <= props.item.quantity &&
         minFreeQuantity(props.reservations, props.item.quantity, form.start_date, form.end_date) < Number(form.quantity),
 );
@@ -166,6 +169,28 @@ const submit = () => form.post(route('requests.store', props.item.id));
                             </div>
                         </div>
                         <InputError :message="form.errors.quantity || form.errors.start_date || form.errors.end_date" />
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="grid gap-2">
+                                <Label for="repeat">Wiederholen</Label>
+                                <select id="repeat" v-model="form.repeat" :class="selectClass">
+                                    <option value="">Einmalig</option>
+                                    <option value="weekly">Wöchentlich</option>
+                                    <option value="biweekly">Alle 2 Wochen</option>
+                                    <option value="monthly">Monatlich</option>
+                                </select>
+                            </div>
+                            <div v-if="form.repeat" class="grid gap-2">
+                                <Label for="repeat_count">Termine insgesamt</Label>
+                                <Input id="repeat_count" type="number" min="2" max="12" v-model.number="form.repeat_count" required />
+                            </div>
+                        </div>
+                        <InputError :message="form.errors.repeat || form.errors.repeat_count" />
+                        <p v-if="form.repeat" class="text-xs text-muted-foreground">
+                            Der gewählte Zeitraum wird {{ form.repeat_count }}×
+                            {{ form.repeat === 'weekly' ? 'wöchentlich' : form.repeat === 'biweekly' ? 'alle 2 Wochen' : 'monatlich' }} gebucht – alle
+                            Termine müssen frei sein.
+                        </p>
 
                         <div class="grid gap-2">
                             <Label for="message">Nachricht (optional)</Label>
