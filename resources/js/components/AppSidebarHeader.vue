@@ -2,6 +2,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
+import { Link } from '@inertiajs/vue3';
 
 defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
@@ -23,8 +24,8 @@ defineProps<{
                                     <BreadcrumbPage>{{ item.title }}</BreadcrumbPage>
                                 </template>
                                 <template v-else>
-                                    <BreadcrumbLink :href="item.href">
-                                        {{ item.title }}
+                                    <BreadcrumbLink as-child>
+                                        <Link :href="item.href">{{ item.title }}</Link>
                                     </BreadcrumbLink>
                                 </template>
                             </BreadcrumbItem>

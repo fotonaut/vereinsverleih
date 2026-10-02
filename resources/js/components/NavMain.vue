@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type SharedData } from '@/types';
+import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import type { Component } from 'vue';
-
-interface NavItem {
-    title: string;
-    url: string;
-    icon: Component;
-}
 
 defineProps<{
     items: NavItem[];
 }>();
 
 const page = usePage<SharedData>();
+
+// Aktiv auch auf Unterseiten (/…/5/kalender, /…/edit) und mit Query-String; Übersicht nur exakt
+const isActive = (url: string): boolean => {
+    const path = page.url.split('?')[0];
+    return url === '/dashboard' ? path === url : path === url || path.startsWith(`${url}/`);
+};
 </script>
 
 <template>
@@ -22,9 +21,9 @@ const page = usePage<SharedData>();
         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-                <SidebarMenuButton as-child :is-active="item.url === page.url">
-                    <Link :href="item.url">
-                        <component :is="item.icon" />
+                <SidebarMenuButton as-child :is-active="isActive(item.href)">
+                    <Link :href="item.href">
+                        <component :is="item.icon" v-if="item.icon" />
                         <span>{{ item.title }}</span>
                     </Link>
                 </SidebarMenuButton>

@@ -50,6 +50,9 @@ const remove = (item: Item) => {
                             <td class="p-3">{{ euro(item.deposit_cents) }}</td>
                             <td class="space-x-2 whitespace-nowrap p-3 text-right">
                                 <Button size="sm" variant="outline" as-child
+                                    ><Link :href="route('manage.items.calendar', item.id)">Kalender</Link></Button
+                                >
+                                <Button size="sm" variant="outline" as-child
                                     ><Link :href="route('manage.items.edit', item.id)">Bearbeiten</Link></Button
                                 >
                                 <Button size="sm" variant="destructive" @click="remove(item)">Löschen</Button>

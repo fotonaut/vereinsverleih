@@ -70,6 +70,23 @@ class WaitlistEntry extends Model
         return $this->belongsTo(Item::class);
     }
 
+    /** Kompakte Darstellung für Dashboard-Widget und Wartelisten-Seite. */
+    public function toCard(): array
+    {
+        return [
+            'id' => $this->id,
+            'token' => $this->token,
+            'status' => $this->status,
+            'statusLabel' => $this->statusLabel(),
+            'quantity' => $this->quantity,
+            'start_date' => $this->start_date->toDateString(),
+            'end_date' => $this->end_date->toDateString(),
+            'series' => $this->isSeries() ? $this->repeat_count.'× '.LoanSeries::INTERVALS[$this->repeat] : null,
+            'requester' => $this->requester_name,
+            'item' => ['id' => $this->item_id, 'name' => $this->item?->name],
+        ];
+    }
+
     public function statusLabel(): string
     {
         return match ($this->status) {

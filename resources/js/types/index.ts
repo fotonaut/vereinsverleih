@@ -107,3 +107,16 @@ export interface Operator {
     phone: string;
     hoster: string;
 }
+
+export interface WaitlistCard {
+    id: number;
+    token: string;
+    status: 'waiting' | 'notified' | string;
+    statusLabel: string;
+    quantity: number;
+    start_date: string;
+    end_date: string;
+    series: string | null;
+    requester: string;
+    item: { id: number; name: string };
+}
