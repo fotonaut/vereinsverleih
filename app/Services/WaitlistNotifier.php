@@ -23,23 +23,28 @@ class WaitlistNotifier
             return 0;
         }
 
+        // Abgelaufene Wünsche schließen, statt sie zu benachrichtigen
+        WaitlistEntry::where('item_id', $item->id)->where('status', 'waiting')->stale()->update(['status' => 'expired']);
+
         $entries = WaitlistEntry::where('item_id', $item->id)
             ->where('status', 'waiting')
-            ->whereDate('end_date', '>=', today())
             ->orderBy('created_at')->orderBy('id')
             ->get();
 
         $notified = collect();
 
         foreach ($entries as $entry) {
-            $start = $entry->start_date->toDateString();
-            $end = $entry->end_date->toDateString();
+            // Bei einer Serie müssen ALLE Termine frei sein (wie beim Buchen: alles oder nichts)
+            $allFree = collect($entry->occurrences())->every(function (array $o) use ($item, $entry, $notified) {
+                $virtualHold = $notified
+                    ->filter(fn (WaitlistEntry $n) => collect($n->occurrences())
+                        ->contains(fn (array $no) => $no['start'] <= $o['end'] && $no['end'] >= $o['start']))
+                    ->sum('quantity');
 
-            $virtualHold = $notified
-                ->filter(fn (WaitlistEntry $n) => $n->start_date->lte($entry->end_date) && $n->end_date->gte($entry->start_date))
-                ->sum('quantity');
+                return $item->availableQuantity($o['start'], $o['end']) - $virtualHold >= $entry->quantity;
+            });
 
-            if ($item->availableQuantity($start, $end) - $virtualHold >= $entry->quantity) {
+            if ($allFree) {
                 Notification::route('mail', $entry->requester_email)->notify(new WaitlistAvailable($entry->setRelation('item', $item->loadMissing('club'))));
                 $entry->update(['status' => 'notified', 'notified_at' => now()]);
                 $notified->push($entry);

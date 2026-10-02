@@ -6,6 +6,9 @@ use App\Http\Requests\StoreLoanRequest;
 use App\Models\Item;
 use App\Models\WaitlistEntry;
 use App\Notifications\WaitlistVerify;
+use App\Support\LoanSeries;
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
@@ -36,17 +39,35 @@ class WaitlistController extends Controller
         if ($data['quantity'] > $item->quantity) {
             return back()->withErrors(['quantity' => "Es sind insgesamt nur {$item->quantity} Stück vorhanden."]);
         }
-        if ($item->availableQuantity($data['start_date'], $data['end_date']) >= $data['quantity']) {
-            return back()->withErrors(['start_date' => 'Der Gegenstand ist in diesem Zeitraum frei – du kannst ihn direkt anfragen.']);
+        $repeat = $data['repeat'] ?? null;
+        $count = $repeat ? (int) $data['repeat_count'] : null;
+        $occurrences = $repeat
+            ? LoanSeries::occurrences($data['start_date'], $data['end_date'], $repeat, $count)
+            : [['start' => $data['start_date'], 'end' => $data['end_date']]];
+
+        if ($repeat) {
+            $durationDays = (int) Carbon::parse($data['start_date'])->diffInDays(Carbon::parse($data['end_date']));
+            if ($durationDays >= LoanSeries::minGapDays($repeat)) {
+                return back()->withErrors(['repeat' => 'Der Zeitraum ist länger als der Abstand der Wiederholung – die Termine würden sich überlappen.']);
+            }
+        }
+
+        // Nur sinnvoll, wenn mindestens ein Termin belegt ist; sonst direkt anfragen
+        $anyTaken = collect($occurrences)->contains(fn ($o) => $item->availableQuantity($o['start'], $o['end']) < $data['quantity']);
+        if (! $anyTaken) {
+            return back()->withErrors([$repeat ? 'repeat' : 'start_date' => $repeat
+                ? 'Alle Termine sind frei – du kannst die Serie direkt anfragen.'
+                : 'Der Gegenstand ist in diesem Zeitraum frei – du kannst ihn direkt anfragen.']);
         }
 
         $email = $user?->email ?? $data['requester_email'];
+        $until = Arr::last($occurrences)['end'];
         $duplicate = WaitlistEntry::where('item_id', $item->id)->where('requester_email', $email)
             ->whereIn('status', self::OPEN)
-            ->whereDate('start_date', '<=', $data['end_date'])->whereDate('end_date', '>=', $data['start_date'])
+            ->whereDate('start_date', '<=', $until)->whereDate('until_date', '>=', $data['start_date'])
             ->exists();
         if ($duplicate) {
-            return back()->withErrors(['start_date' => 'Du stehst für einen überlappenden Zeitraum bereits auf der Warteliste.']);
+            return back()->withErrors([$repeat ? 'repeat' : 'start_date' => 'Du stehst für einen überlappenden Zeitraum bereits auf der Warteliste.']);
         }
 
         $entry = WaitlistEntry::create([
@@ -59,6 +80,9 @@ class WaitlistController extends Controller
             'quantity' => $data['quantity'],
             'start_date' => $data['start_date'],
             'end_date' => $data['end_date'],
+            'repeat' => $repeat,
+            'repeat_count' => $count,
+            'until_date' => $until,
             'status' => $user ? 'waiting' : 'unverified',
         ]);
 
@@ -83,6 +107,7 @@ class WaitlistController extends Controller
                 'quantity' => $entry->quantity,
                 'start_date' => $entry->start_date->toDateString(),
                 'end_date' => $entry->end_date->toDateString(),
+                'series' => $entry->isSeries() ? ['label' => LoanSeries::INTERVALS[$entry->repeat], 'count' => $entry->repeat_count, 'until' => $entry->until_date->toDateString()] : null,
                 'item' => ['id' => $entry->item->id, 'name' => $entry->item->name, 'club' => $entry->item->club->name],
                 'open' => in_array($entry->status, self::OPEN, true),
             ],

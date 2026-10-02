@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PublicLayout from '@/layouts/PublicLayout.vue';
-import { minFreeQuantity } from '@/lib/availability';
+import { minFreeQuantity, occurrences } from '@/lib/availability';
 import { date, euro, selectClass } from '@/lib/format';
 import type { Item } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -48,16 +48,16 @@ const pick = (day: string) => {
     }
 };
 
-// Gewählter Zeitraum für die gewünschte Menge schon belegt? Dann Warteliste anbieten.
-const rangeFull = computed(
-    () =>
-        !!form.start_date &&
-        !!form.end_date &&
-        form.end_date >= form.start_date &&
-        !form.repeat &&
-        Number(form.quantity) <= props.item.quantity &&
-        minFreeQuantity(props.reservations, props.item.quantity, form.start_date, form.end_date) < Number(form.quantity),
-);
+// Gewählter Zeitraum (bei Serie: mindestens ein Termin) für die gewünschte Menge schon belegt? Dann Warteliste anbieten.
+const rangeFull = computed(() => {
+    if (!form.start_date || !form.end_date || form.end_date < form.start_date || Number(form.quantity) > props.item.quantity) return false;
+
+    const periods = form.repeat
+        ? occurrences(form.start_date, form.end_date, form.repeat, Math.min(Math.max(Number(form.repeat_count) || 2, 2), 12))
+        : [{ start: form.start_date, end: form.end_date }];
+
+    return periods.some((p) => minFreeQuantity(props.reservations, props.item.quantity, p.start, p.end) < Number(form.quantity));
+});
 
 const joinWaitlist = () => form.post(route('waitlist.store', props.item.id));
 

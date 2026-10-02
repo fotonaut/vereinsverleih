@@ -28,7 +28,7 @@ Schedule::command('loans:send-overdue')->dailyAt('08:10');
 // Warteliste aufräumen: abgelaufene Zeiträume schließen, unbestätigte Einträge nach Frist löschen.
 Schedule::call(function () {
     App\Models\WaitlistEntry::whereIn('status', ['unverified', 'waiting'])
-        ->whereDate('end_date', '<', today())
+        ->stale()
         ->update(['status' => 'expired']);
 
     App\Models\WaitlistEntry::where('status', 'unverified')

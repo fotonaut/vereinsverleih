@@ -12,6 +12,7 @@ const props = defineProps<{
         quantity: number;
         start_date: string;
         end_date: string;
+        series: { label: string; count: number; until: string } | null;
         item: { id: number; name: string; club: string };
         open: boolean;
     };
@@ -33,14 +34,19 @@ const cancel = () => {
             <p class="text-muted-foreground">von {{ entry.item.club }}</p>
             <dl class="mt-6 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                    <dt class="text-muted-foreground">Gewünschter Zeitraum</dt>
+                    <dt class="text-muted-foreground">{{ entry.series ? 'Erster Termin' : 'Gewünschter Zeitraum' }}</dt>
                     <dd class="font-medium">{{ date(entry.start_date) }} – {{ date(entry.end_date) }}</dd>
                 </div>
                 <div>
                     <dt class="text-muted-foreground">Menge</dt>
                     <dd class="font-medium">{{ entry.quantity }}</dd>
                 </div>
+                <div v-if="entry.series" class="col-span-2">
+                    <dt class="text-muted-foreground">Serie</dt>
+                    <dd class="font-medium">{{ entry.series.count }} Termine {{ entry.series.label }}, bis {{ date(entry.series.until) }}</dd>
+                </div>
             </dl>
+            <p v-if="entry.series" class="mt-3 text-xs text-muted-foreground">Wir benachrichtigen dich, sobald alle Termine der Serie frei sind.</p>
             <p v-if="entry.status === 'unverified'" class="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
                 Bitte bestätige den Eintrag über den Link in der E-Mail, die wir dir geschickt haben.
             </p>

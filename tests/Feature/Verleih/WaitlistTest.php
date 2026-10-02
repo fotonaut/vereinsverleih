@@ -162,4 +162,68 @@ class WaitlistTest extends TestCase
             'status' => $status,
         ];
     }
+
+    public function test_series_entry_waits_for_all_occurrences(): void
+    {
+        Notification::fake();
+        [$item, $owner, $loan] = $this->bookedItem(); // belegt in 5..8 Tagen
+        // Serie wöchentlich, 3 Termine; erster Termin liegt im belegten Fenster
+        $this->post("/katalog/{$item->id}/warteliste", $this->payload([
+            'start_date' => today()->addDays(6)->toDateString(), 'end_date' => today()->addDays(7)->toDateString(),
+            'repeat' => 'weekly', 'repeat_count' => 3,
+        ]))->assertSessionHasNoErrors();
+
+        $entry = WaitlistEntry::firstOrFail();
+        $this->assertTrue($entry->isSeries());
+        $this->assertSame(today()->addDays(6 + 14 + 1)->toDateString(), $entry->until_date->toDateString());
+
+        // Termin 2 wird zusätzlich belegt → Freigabe des ersten Termins reicht nicht
+        $blocker = LoanRequest::factory()->status(LoanStatus::Approved)->create([
+            'item_id' => $item->id,
+            'start_date' => today()->addDays(13)->toDateString(), 'end_date' => today()->addDays(14)->toDateString(),
+        ]);
+        $entry->update(['status' => 'waiting']);
+
+        $this->actingAs($owner)->patch("/verwaltung/eingang/{$loan->id}", ['status' => 'declined']);
+        $this->assertSame('waiting', $entry->fresh()->status, 'Termin 2 ist noch belegt');
+        Notification::assertSentOnDemandTimes(WaitlistAvailable::class, 0);
+
+        $this->actingAs($owner)->patch("/verwaltung/eingang/{$blocker->id}", ['status' => 'declined']);
+        $this->assertSame('notified', $entry->fresh()->status);
+        Notification::assertSentOnDemandTimes(WaitlistAvailable::class, 1);
+    }
+
+    public function test_series_rejected_when_all_dates_are_free_or_overlapping(): void
+    {
+        [$item] = $this->bookedItem();
+
+        $this->post("/katalog/{$item->id}/warteliste", $this->payload([
+            'start_date' => today()->addDays(20)->toDateString(), 'end_date' => today()->addDays(21)->toDateString(),
+            'repeat' => 'weekly', 'repeat_count' => 3,
+        ]))->assertSessionHasErrors('repeat');
+
+        $this->post("/katalog/{$item->id}/warteliste", $this->payload([
+            'start_date' => today()->addDays(6)->toDateString(), 'end_date' => today()->addDays(16)->toDateString(),
+            'repeat' => 'weekly', 'repeat_count' => 3,
+        ]))->assertSessionHasErrors('repeat');
+        $this->assertSame(0, WaitlistEntry::count());
+    }
+
+    public function test_series_mail_lists_all_dates_and_series_entries_expire_when_started(): void
+    {
+        [$item] = $this->bookedItem();
+        $entry = WaitlistEntry::create([
+            'item_id' => $item->id, 'requester_type' => 'private', 'requester_name' => 'S', 'requester_email' => 's@example.com',
+            'quantity' => 1, 'start_date' => today()->addDays(6)->toDateString(), 'end_date' => today()->addDays(7)->toDateString(),
+            'repeat' => 'weekly', 'repeat_count' => 3, 'status' => 'waiting',
+        ])->load('item.club');
+
+        $mail = (new WaitlistAvailable($entry))->toMail(new \stdClass);
+        $this->assertStringContainsString('alle 3 Termine', implode(' ', array_map(fn ($l) => $l, $mail->introLines)));
+        $this->assertCount(3, array_filter($mail->introLines, fn ($l) => str_starts_with($l, '•')));
+
+        // Beginnt der erste Termin (Vergangenheit), verfällt der Serien-Wunsch
+        $entry->update(['start_date' => today()->subDay()->toDateString(), 'end_date' => today()->toDateString()]);
+        $this->assertTrue(WaitlistEntry::stale()->whereKey($entry->id)->exists());
+    }
 }

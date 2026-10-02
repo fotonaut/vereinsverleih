@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\WaitlistEntry;
+use App\Support\LoanSeries;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -26,9 +27,18 @@ class WaitlistVerify extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Bitte bestätige deinen Wartelisten-Eintrag: '.$e->item->name)
             ->greeting('Hallo '.$e->requester_name.',')
-            ->line('du möchtest auf die Warteliste für „'.$e->item->name.'“ ('.$e->quantity.'×, '.$e->start_date->format('d.m.Y').' – '.$e->end_date->format('d.m.Y').').')
+            ->line('du möchtest auf die Warteliste für „'.$e->item->name.'“ ('.$e->quantity.'×, '.$this->when($e).').')
             ->line('Bestätige bitte deine E-Mail-Adresse, damit wir dich benachrichtigen können, sobald der Gegenstand frei wird.')
             ->action('Eintrag bestätigen', route('waitlist.verify', $e->token))
             ->line('Wenn du das nicht warst, ignoriere diese E-Mail einfach.');
+    }
+
+    private function when(WaitlistEntry $e): string
+    {
+        $base = $e->start_date->format('d.m.Y').' – '.$e->end_date->format('d.m.Y');
+
+        return $e->isSeries()
+            ? $e->repeat_count.' Termine '.LoanSeries::INTERVALS[$e->repeat].', erster Termin '.$base
+            : $base;
     }
 }

@@ -37,6 +37,7 @@ class ItemCalendarController extends Controller
                     'quantity' => $w->quantity,
                     'start_date' => $w->start_date->toDateString(),
                     'end_date' => $w->end_date->toDateString(),
+                    'series' => $w->isSeries() ? $w->repeat_count.'× '.\App\Support\LoanSeries::INTERVALS[$w->repeat] : null,
                 ])->values(),
             'loans' => $loans->map(fn ($l) => [
                 'id' => $l->id,
