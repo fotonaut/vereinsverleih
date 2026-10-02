@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vereinsverleih – Vereinsinventar teilen statt doppelt kaufen</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1f6f5c">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vereinsverleih – Vereinsinventar teilen statt doppelt kaufen">
+<meta property="og:description" content="Open-Source-Plattform, mit der Vereine ihr Inventar an andere Vereine oder Privatpersonen verleihen.">
+<meta property="og:image" content="https://fotonaut.github.io/vereinsverleih/og-image.png">
+<meta property="og:url" content="https://fotonaut.github.io/vereinsverleih/">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Open-Source-Plattform, mit der Vereine ihr Inventar eintragen und an andere Vereine oder Privatpersonen verleihen – mit Anfrage-Workflow, Bestandsprüfung und E-Mail-Benachrichtigung.">
 <style>
   :root {
@@ -19,8 +30,8 @@
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
   header.top { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
   .logo { font-weight: 700; letter-spacing: -.01em; display: flex; gap: 10px; align-items: center; }
-  .logo i { width: 28px; height: 28px; border-radius: 8px; background: var(--brand); display: inline-block; position: relative; }
-  .logo i::after { content: ""; position: absolute; inset: 7px; border: 2.5px solid var(--brand-ink); border-radius: 3px; }
+  .logo img { width: 30px; height: 30px; border-radius: 8px; display: block; }
+  .hero-img { display: block; width: 100%; max-width: 880px; height: auto; margin: 40px auto 0; border-radius: 22px; border: 1px solid var(--line); box-shadow: 0 18px 40px -22px rgba(23, 89, 74, .55); }
   nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 15px; }
   nav a:hover { color: var(--ink); }
   .hero { padding: 56px 0 40px; text-align: center; }
@@ -62,7 +73,7 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="logo"><i></i> Vereinsverleih</div>
+    <div class="logo"><img src="favicon.svg" alt="" width="30" height="30"> Vereinsverleih</div>
     <nav><a href="#wie">So funktioniert's</a><a href="#wer">Wer darf leihen?</a><a href="#selbst">Selbst betreiben</a></nav>
   </header>
 
@@ -72,6 +83,7 @@
     <p class="lead">Festzelt, Bierzeltgarnituren, PA-Anlage, Hüpfburg: Jeder Verein besitzt Dinge, die er nur dreimal im Jahr braucht. Vereinsverleih macht das Inventar sichtbar – und das Ausleihen so einfach wie eine Online-Bestellung.</p>
     <a class="btn primary" href="https://github.com/fotonaut/vereinsverleih">Auf GitHub herunterladen</a>
     <a class="btn" href="#wie">Wie es funktioniert</a>
+    <img class="hero-img" src="hero.svg" width="800" height="480" alt="Festzelt, Hüpfburg, Bierzeltgarnitur und Lautsprecher auf einer Wiese">
   </div>
 
   <section>

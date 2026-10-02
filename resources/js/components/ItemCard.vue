@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import CategoryArt from '@/components/CategoryArt.vue';
 import { euro } from '@/lib/format';
 import type { Item } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Package } from 'lucide-vue-next';
 
 defineProps<{ item: Item }>();
 
@@ -15,9 +15,9 @@ const scopeText: Record<string, string> = {
 
 <template>
     <Link :href="route('catalog.show', item.id)" class="group flex flex-col overflow-hidden rounded-xl border bg-card transition hover:shadow-md">
-        <div class="flex aspect-[4/3] items-center justify-center bg-muted">
+        <div class="aspect-[4/3] bg-muted">
             <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="h-full w-full object-cover" loading="lazy" />
-            <Package v-else class="size-10 text-muted-foreground" />
+            <CategoryArt v-else :category="item.category?.name" />
         </div>
         <div class="flex flex-1 flex-col gap-1 p-4">
             <h3 class="font-semibold group-hover:underline">{{ item.name }}</h3>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CsvExport from '@/components/CsvExport.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
 import PhotoStrip from '@/components/PhotoStrip.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
@@ -90,7 +91,9 @@ const change = (loan: Loan, status: string) =>
             <FlashMessage />
             <CsvExport direction="incoming" />
             <p v-if="errors.status" class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">{{ errors.status }}</p>
-            <p v-if="!loans.length" class="py-10 text-center text-muted-foreground">Noch keine Anfragen.</p>
+            <EmptyState v-if="!loans.length" title="Noch keine Anfragen">
+                Sobald jemand einen eurer Gegenstände anfragt, erscheint die Anfrage hier und ihr bekommt eine E-Mail.
+            </EmptyState>
 
             <article v-for="loan in loans" :key="loan.id" class="rounded-xl border p-4">
                 <div class="flex flex-wrap items-start justify-between gap-2">

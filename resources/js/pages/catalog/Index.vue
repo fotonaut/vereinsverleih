@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EmptyState from '@/components/EmptyState.vue';
 import ItemCard from '@/components/ItemCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,7 +47,12 @@ const apply = () => router.get(route('catalog.index'), Object.fromEntries(Object
             </select>
         </form>
 
-        <p v-if="!items.data.length" class="py-12 text-center text-muted-foreground">Keine passenden Gegenstände gefunden.</p>
+        <EmptyState v-if="!items.data.length" title="Nichts gefunden">
+            Zu diesen Filtern gibt es keinen verleihbaren Gegenstand. Versuche einen anderen Suchbegriff oder setze die Filter zurück.
+            <template #actions
+                ><Button variant="outline" as-child><Link :href="route('catalog.index')">Filter zurücksetzen</Link></Button></template
+            >
+        </EmptyState>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ItemCard v-for="item in items.data" :key="item.id" :item="item" />
         </div>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-label="Festzelt, Hüpfburg, Bierzeltgarnitur und Lautsprecher auf einer Wiese">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe8f1"/><stop offset="1" stop-color="#fbfaf7"/></linearGradient>
+  </defs>
+  <rect width="800" height="480" fill="url(#sky)"/>
+  <circle cx="660" cy="86" r="62" fill="#f6c453" opacity=".25"/>
+  <circle cx="660" cy="86" r="40" fill="#f6c453"/>
+  <g fill="#fff" opacity=".9"><ellipse cx="150" cy="70" rx="46" ry="14"/><ellipse cx="190" cy="60" rx="30" ry="12"/><ellipse cx="520" cy="52" rx="40" ry="12"/><ellipse cx="552" cy="44" rx="24" ry="10"/></g>
+  <path d="M0 330 Q150 250 320 310 T640 290 T800 320 V480 H0Z" fill="#bfe0d5"/>
+  <path d="M0 380 Q200 320 400 370 T800 350 V480 H0Z" fill="#8cc9b2"/>
+  <rect y="410" width="800" height="70" fill="#5fae93"/>
+  <rect y="410" width="800" height="6" fill="#4f9d82" opacity=".6"/>
+
+  <path d="M60 118 Q400 190 740 118" stroke="#8a6a4a" stroke-width="2.5" fill="none"/>
+  <polygon points="46.0,118.0 74.0,118.0 60.0,148.0" fill="#e8833a"/><polygon points="98.3,127.7 126.3,127.7 112.3,157.7" fill="#ffffff"/><polygon points="150.6,135.7 178.6,135.7 164.6,165.7" fill="#1f6f5c"/><polygon points="202.9,142.1 230.9,142.1 216.9,172.1" fill="#f6c453"/><polygon points="255.2,147.0 283.2,147.0 269.2,177.0" fill="#e8833a"/><polygon points="307.5,150.2 335.5,150.2 321.5,180.2" fill="#ffffff"/><polygon points="359.8,151.8 387.8,151.8 373.8,181.8" fill="#1f6f5c"/><polygon points="412.2,151.8 440.2,151.8 426.2,181.8" fill="#f6c453"/><polygon points="464.5,150.2 492.5,150.2 478.5,180.2" fill="#e8833a"/><polygon points="516.8,147.0 544.8,147.0 530.8,177.0" fill="#ffffff"/><polygon points="569.1,142.1 597.1,142.1 583.1,172.1" fill="#1f6f5c"/><polygon points="621.4,135.7 649.4,135.7 635.4,165.7" fill="#f6c453"/><polygon points="673.7,127.7 701.7,127.7 687.7,157.7" fill="#e8833a"/><polygon points="726.0,118.0 754.0,118.0 740.0,148.0" fill="#ffffff"/>
+
+  <!-- Festzelt -->
+  <rect x="170" y="262" width="260" height="124" fill="#ffffff"/>
+  <rect x="190" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/><rect x="230" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/><rect x="270" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/><rect x="310" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/><rect x="350" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/><rect x="390" y="262" width="20" height="116" fill="#e8833a" opacity=".9"/>
+  <polygon points="150,262 300,168 450,262" fill="#c8501e"/>
+  <polygon points="300,168 450,262 300,262" fill="#a93f16" opacity=".55"/>
+  <path d="M170 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M210 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M250 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M290 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M330 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M370 262 a20 20 0 0 0 40 0z" fill="#c8501e"/><path d="M410 262 a20 20 0 0 0 40 0z" fill="#c8501e"/>
+  <path d="M268 386 V318 a32 32 0 0 1 64 0 V386z" fill="#2b3a42"/>
+  <rect x="296" y="150" width="8" height="22" fill="#8a6a4a"/>
+  <polygon points="304,150 330,158 304,166" fill="#1f6f5c"/>
+
+  <!-- Hüpfburg -->
+  <g>
+    <rect x="30" y="322" width="112" height="64" rx="14" fill="#f4b942"/>
+    <circle cx="52" cy="314" r="18" fill="#f08a5d"/><circle cx="86" cy="308" r="18" fill="#f4b942"/><circle cx="120" cy="314" r="18" fill="#f08a5d"/>
+    <rect x="56" y="346" width="40" height="40" rx="10" fill="#fff" opacity=".35"/>
+  </g>
+
+  <!-- Bierzeltgarnitur -->
+  <g>
+    <rect x="500" y="338" width="170" height="12" rx="3" fill="#b9824f"/>
+    <rect x="512" y="350" width="8" height="40" fill="#8a6a4a"/><rect x="650" y="350" width="8" height="40" fill="#8a6a4a"/>
+    <rect x="492" y="364" width="186" height="9" rx="3" fill="#d09a62"/>
+    <rect x="506" y="373" width="7" height="22" fill="#8a6a4a"/><rect x="657" y="373" width="7" height="22" fill="#8a6a4a"/>
+    <rect x="540" y="322" width="16" height="16" rx="3" fill="#fff"/><rect x="540" y="326" width="16" height="4" fill="#f6c453"/>
+    <rect x="600" y="322" width="16" height="16" rx="3" fill="#fff"/><rect x="600" y="326" width="16" height="4" fill="#f6c453"/>
+  </g>
+
+  <!-- Lautsprecher -->
+  <g>
+    <rect x="700" y="296" width="54" height="96" rx="8" fill="#2f3b45"/>
+    <circle cx="727" cy="346" r="17" fill="#46586a"/><circle cx="727" cy="346" r="8" fill="#2f3b45"/>
+    <circle cx="727" cy="316" r="8" fill="#46586a"/><circle cx="727" cy="316" r="3" fill="#2f3b45"/>
+  </g>
+
+  <!-- Kistenstapel (Inventar) -->
+  <g transform="translate(448 372) scale(.9)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g>
+  <g transform="translate(482 372) scale(.9)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g>
+  <g transform="translate(465 349) scale(.9)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g>
+
+  <!-- Tausch-Badge -->
+  <g transform="translate(300 84)">
+    <circle r="30" fill="#e8833a" stroke="#fff" stroke-width="5"/>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-14 -7H14M7 -14L14 -7L7 0"/><path d="M14 9H-14M-7 2L-14 9L-7 16"/>
+    </g>
+  </g>
+</svg>

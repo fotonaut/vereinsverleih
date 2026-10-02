@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EmptyState from '@/components/EmptyState.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -26,7 +27,12 @@ const remove = (item: Item) => {
                 <Button as-child><Link :href="route('manage.items.create')">Gegenstand anlegen</Link></Button>
             </div>
             <FlashMessage />
-            <p v-if="!items.length" class="py-10 text-center text-muted-foreground">Noch nichts eingetragen. Lege euren ersten Gegenstand an.</p>
+            <EmptyState v-if="!items.length" title="Noch nichts eingetragen">
+                Legt euren ersten Gegenstand an – Zelt, Bierbänke, Technik oder Spiele – und entscheidet, wer ihn leihen darf.
+                <template #actions
+                    ><Button as-child><Link :href="route('manage.items.create')">Ersten Gegenstand anlegen</Link></Button></template
+                >
+            </EmptyState>
             <div v-else class="overflow-x-auto rounded-xl border">
                 <table class="w-full text-sm">
                     <thead class="bg-muted/50 text-left">

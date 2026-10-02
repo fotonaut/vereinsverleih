@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AvailabilityCalendar from '@/components/AvailabilityCalendar.vue';
+import CategoryArt from '@/components/CategoryArt.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,6 @@ import { minFreeQuantity, occurrences } from '@/lib/availability';
 import { date, euro, selectClass } from '@/lib/format';
 import type { Item } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Package } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -73,7 +73,7 @@ const submit = () => form.post(route('requests.store', props.item.id));
             <div>
                 <div class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-muted">
                     <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="h-full w-full object-cover" />
-                    <Package v-else class="size-16 text-muted-foreground" />
+                    <CategoryArt v-else :category="item.category?.name" size="lg" />
                 </div>
                 <h1 class="mt-6 text-3xl font-bold">{{ item.name }}</h1>
                 <p class="text-muted-foreground">

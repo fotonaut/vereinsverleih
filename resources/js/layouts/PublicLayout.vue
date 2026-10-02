@@ -3,7 +3,6 @@ import FlashMessage from '@/components/FlashMessage.vue';
 import { Button } from '@/components/ui/button';
 import type { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Boxes } from 'lucide-vue-next';
 
 const page = usePage<SharedData>();
 </script>
@@ -13,7 +12,7 @@ const page = usePage<SharedData>();
         <header class="border-b">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
                 <Link :href="route('home')" class="flex items-center gap-2 font-semibold">
-                    <Boxes class="size-6 text-primary" /> Vereinsverleih
+                    <img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Vereinsverleih
                 </Link>
                 <nav class="flex items-center gap-2 text-sm">
                     <Button variant="ghost" as-child><Link :href="route('catalog.index')">Katalog</Link></Button>

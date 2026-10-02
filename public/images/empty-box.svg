@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-label="Leere Kiste">
+  <ellipse cx="160" cy="188" rx="96" ry="14" fill="#7fc0a8" opacity=".25"/>
+  <g stroke-linejoin="round">
+    <polygon points="160,78 232,114 160,150 88,114" fill="#fff" stroke="#7fc0a8" stroke-width="3"/>
+    <polygon points="88,114 160,150 160,186 88,150" fill="#e7f2ee" stroke="#7fc0a8" stroke-width="3"/>
+    <polygon points="232,114 160,150 160,186 232,150" fill="#cfe7de" stroke="#7fc0a8" stroke-width="3"/>
+    <polygon points="160,78 232,114 160,100 88,114" fill="#b5e0d3" opacity=".0"/>
+  </g>
+  <polygon points="88,114 120,98 160,118 124,134" fill="#b5e0d3" stroke="#7fc0a8" stroke-width="3" stroke-linejoin="round" opacity=".9"/>
+  <polygon points="232,114 200,98 160,118 196,134" fill="#9fd3c3" stroke="#7fc0a8" stroke-width="3" stroke-linejoin="round" opacity=".9"/>
+  <g stroke="#e8833a" stroke-width="4" stroke-linecap="round"><path d="M160 36V54"/><path d="M118 48L128 62"/><path d="M202 48L192 62"/></g>
+  <circle cx="250" cy="60" r="5" fill="#f6c453"/><circle cx="70" cy="84" r="4" fill="#e8833a" opacity=".7"/><circle cx="262" cy="150" r="3" fill="#7fc0a8"/>
+</svg>

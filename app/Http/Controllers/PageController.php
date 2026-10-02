@@ -12,7 +12,7 @@ class PageController extends Controller
     public function home(): Response
     {
         return Inertia::render('Welcome', [
-            'latest' => Item::catalog()->with('club:id,name,city')->latest()->limit(6)->get(),
+            'latest' => Item::catalog()->with(['club:id,name,city', 'category:id,name'])->latest()->limit(6)->get(),
             'stats' => [
                 'clubs' => Club::count(),
                 'items' => Item::catalog()->count(),
