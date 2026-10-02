@@ -6,7 +6,7 @@ import { TransitionRoot } from '@headlessui/vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-import HeadingSmall from '@/components/HeadingSmall.vue';
+import SettingsCard from '@/components/SettingsCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,9 +62,7 @@ const updatePassword = () => {
         <Head title="Passwort" />
 
         <SettingsLayout>
-            <div class="space-y-6">
-                <HeadingSmall title="Passwort ändern" description="Verwende ein langes, zufälliges Passwort, um dein Konto zu schützen" />
-
+            <SettingsCard title="Passwort ändern" description="Verwende ein langes, zufälliges Passwort, um dein Konto zu schützen">
                 <form @submit.prevent="updatePassword" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="current_password">Aktuelles Passwort</Label>
@@ -121,7 +119,7 @@ const updatePassword = () => {
                         </TransitionRoot>
                     </div>
                 </form>
-            </div>
+            </SettingsCard>
         </SettingsLayout>
     </AppLayout>
 </template>

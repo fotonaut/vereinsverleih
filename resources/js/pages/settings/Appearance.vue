@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
-import HeadingSmall from '@/components/HeadingSmall.vue';
+import SettingsCard from '@/components/SettingsCard.vue';
 import { type BreadcrumbItem } from '@/types';
 
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -21,10 +21,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
         <Head title="Darstellung" />
 
         <SettingsLayout>
-            <div class="space-y-6">
-                <HeadingSmall title="Darstellung" description="Darstellung deines Kontos anpassen" />
+            <SettingsCard title="Darstellung" description="Hell, dunkel oder passend zu deinem Gerät">
                 <AppearanceTabs />
-            </div>
+            </SettingsCard>
         </SettingsLayout>
     </AppLayout>
 </template>

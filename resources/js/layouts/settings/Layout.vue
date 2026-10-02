@@ -1,56 +1,68 @@
 <script setup lang="ts">
-import Heading from '@/components/Heading.vue';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import type { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
+import { KeyRound, Palette, UserRound } from 'lucide-vue-next';
+import { computed } from 'vue';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profil',
-        href: '/settings/profile',
-    },
-    {
-        title: 'Passwort',
-        href: '/settings/password',
-    },
-    {
-        title: 'Darstellung',
-        href: '/settings/appearance',
-    },
+const page = usePage<SharedData>();
+const user = computed(() => page.props.auth.user);
+const path = computed(() => page.url.split('?')[0]);
+
+const tabs = [
+    { title: 'Profil', href: '/settings/profile', icon: UserRound },
+    { title: 'Passwort', href: '/settings/password', icon: KeyRound },
+    { title: 'Darstellung', href: '/settings/appearance', icon: Palette },
 ];
 
-const currentPath = window.location.pathname;
+const initials = computed(() =>
+    user.value.name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p) => p[0].toUpperCase())
+        .join(''),
+);
 </script>
 
 <template>
-    <div class="px-4 py-6">
-        <Heading title="Einstellungen" description="Profil und Kontoeinstellungen verwalten" />
-
-        <div class="flex flex-col space-y-8 md:space-y-0 lg:flex-row lg:space-x-12 lg:space-y-0">
-            <aside class="w-full max-w-xl lg:w-48">
-                <nav class="flex flex-col space-x-0 space-y-1">
-                    <Button
-                        v-for="item in sidebarNavItems"
-                        :key="item.href"
-                        variant="ghost"
-                        :class="['w-full justify-start', { 'bg-muted': currentPath === item.href }]"
-                        as-child
-                    >
-                        <Link :href="item.href">
-                            {{ item.title }}
-                        </Link>
-                    </Button>
-                </nav>
-            </aside>
-
-            <Separator class="my-6 md:hidden" />
-
-            <div class="flex-1 md:max-w-2xl">
-                <section class="max-w-xl space-y-12">
-                    <slot />
-                </section>
+    <div class="mx-auto w-full max-w-2xl space-y-6 px-4 py-6">
+        <!-- Kopf im Stil der Anmeldeseiten: Abendszene, Logo-Farben, Konto auf einen Blick -->
+        <div class="relative overflow-hidden rounded-2xl border bg-[#123f35]">
+            <img src="/images/auth-welcome.svg" alt="" class="absolute inset-0 size-full object-cover object-[50%_62%]" />
+            <div class="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
+            <div class="relative flex items-center gap-4 p-5 text-white sm:p-6">
+                <span class="grid size-14 shrink-0 place-items-center rounded-2xl bg-white/90 text-lg font-bold text-teal-800 shadow">{{
+                    initials
+                }}</span>
+                <div class="min-w-0">
+                    <h1 class="truncate text-xl font-semibold tracking-tight">{{ user.name }}</h1>
+                    <p class="truncate text-sm text-white/80">{{ user.email }}</p>
+                    <p v-if="user.club" class="mt-1 flex flex-wrap items-center gap-2 text-xs text-white/90">
+                        <span class="truncate">{{ user.club.name }}</span>
+                        <span class="rounded-full bg-white/20 px-2 py-0.5 font-medium backdrop-blur-sm">{{
+                            user.role === 'club_admin' ? 'Admin' : 'Mitglied'
+                        }}</span>
+                    </p>
+                </div>
             </div>
+        </div>
+
+        <nav class="flex gap-1 rounded-xl bg-muted p-1" aria-label="Einstellungen">
+            <Link
+                v-for="t in tabs"
+                :key="t.href"
+                :href="t.href"
+                class="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition"
+                :class="path === t.href ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                :aria-current="path === t.href ? 'page' : undefined"
+            >
+                <component :is="t.icon" class="size-4" />
+                <span>{{ t.title }}</span>
+            </Link>
+        </nav>
+
+        <div class="space-y-6">
+            <slot />
         </div>
     </div>
 </template>

@@ -3,8 +3,8 @@ import { TransitionRoot } from '@headlessui/vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 
 import DeleteUser from '@/components/DeleteUser.vue';
-import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import SettingsCard from '@/components/SettingsCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,9 +47,7 @@ const submit = () => {
         <Head title="Profil" />
 
         <SettingsLayout>
-            <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Profil" description="Name und E-Mail-Adresse ändern" />
-
+            <SettingsCard title="Profil" description="Name und E-Mail-Adresse ändern">
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="name">Name</Label>
@@ -79,13 +77,13 @@ const submit = () => {
                     </div>
 
                     <div v-if="mustVerifyEmail && !user.email_verified_at">
-                        <p class="mt-2 text-sm text-neutral-800">
+                        <p class="rounded-md bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                             Deine E-Mail-Adresse ist noch nicht bestätigt.
                             <Link
                                 :href="route('verification.send')"
                                 method="post"
                                 as="button"
-                                class="focus:outline-hidden rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2"
+                                class="focus:outline-hidden rounded-md text-sm underline hover:no-underline focus:ring-2 focus:ring-offset-2"
                             >
                                 Bestätigungs-Mail erneut senden.
                             </Link>
@@ -110,7 +108,7 @@ const submit = () => {
                         </TransitionRoot>
                     </div>
                 </form>
-            </div>
+            </SettingsCard>
 
             <DeleteUser />
         </SettingsLayout>

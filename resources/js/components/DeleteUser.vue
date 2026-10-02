@@ -3,8 +3,8 @@ import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 // Components
-import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import SettingsCard from '@/components/SettingsCard.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -43,10 +43,9 @@ const closeModal = () => {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <HeadingSmall title="Konto löschen" description="Konto und alle zugehörigen Daten löschen" />
-        <div class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-            <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
+    <SettingsCard title="Konto löschen" description="Konto und alle zugehörigen Daten löschen" tone="danger">
+        <div class="space-y-4">
+            <div class="relative space-y-0.5 text-red-700 dark:text-red-200">
                 <p class="font-medium">Achtung</p>
                 <p class="text-sm">Bitte mit Vorsicht, das lässt sich nicht rückgängig machen.</p>
             </div>
@@ -83,5 +82,5 @@ const closeModal = () => {
                 </DialogContent>
             </Dialog>
         </div>
-    </div>
+    </SettingsCard>
 </template>
