@@ -12,4 +12,6 @@ return [
     'hoster' => env('IMPRINT_HOSTER', 'manitu GmbH, Welvertstraße 2, 66606 St. Wendel'),
     // Nach wie vielen Tagen unbestätigte Gast-Anfragen automatisch gelöscht werden
     'unverified_retention_days' => 7,
+    // Nach wie vielen Tagen Rückgabe-Fotos automatisch gelöscht werden
+    'photo_retention_days' => 365,
 ];

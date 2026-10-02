@@ -129,6 +129,7 @@ class LoanRequestController extends Controller
                     'at' => $loan->returned_at?->toDateString(),
                     'depositReturned' => $loan->deposit_returned,
                     'hasDeposit' => (bool) $loan->item->deposit_cents,
+                    'photos' => $loan->returnPhotos->map(fn ($p) => ['id' => $p->id, 'url' => route('requests.return-photo', [$loan->token, $p])])->values(),
                 ] : null,
                 'canCancelSeries' => $loan->series_id && $loan->seriesLoans()->contains(fn ($l) => in_array($l->status, self::CANCELLABLE, true)),
                 'canExtend' => in_array($loan->status, [LoanStatus::Approved, LoanStatus::PickedUp], true)

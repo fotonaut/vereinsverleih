@@ -59,6 +59,11 @@ class LoanRequest extends Model
         return static::where('series_id', $this->series_id)->orderBy('start_date')->orderBy('id')->get();
     }
 
+    public function returnPhotos(): HasMany
+    {
+        return $this->hasMany(LoanReturnPhoto::class);
+    }
+
     public function extensions(): HasMany
     {
         return $this->hasMany(LoanExtension::class);

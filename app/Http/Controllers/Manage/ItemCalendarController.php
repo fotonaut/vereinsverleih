@@ -39,7 +39,7 @@ class ItemCalendarController extends Controller
                     'end_date' => $w->end_date->toDateString(),
                     'series' => $w->isSeries() ? $w->repeat_count.'× '.\App\Support\LoanSeries::INTERVALS[$w->repeat] : null,
                 ])->values(),
-            'returns' => $item->loanRequests()->where('status', 'returned')->whereNotNull('returned_at')
+            'returns' => $item->loanRequests()->with('returnPhotos')->where('status', 'returned')->whereNotNull('returned_at')
                 ->orderByDesc('returned_at')->limit(8)->get()
                 ->map(fn ($l) => [
                     'id' => $l->id,
@@ -50,6 +50,7 @@ class ItemCalendarController extends Controller
                     'attention' => (bool) $l->return_condition?->needsAttention(),
                     'note' => $l->return_note,
                     'deposit_returned' => $l->deposit_returned,
+                    'photos' => $l->returnPhotos->map(fn ($p) => ['id' => $p->id, 'url' => route('manage.return-photo', $p)])->values(),
                 ])->values(),
             'loans' => $loans->map(fn ($l) => [
                 'id' => $l->id,

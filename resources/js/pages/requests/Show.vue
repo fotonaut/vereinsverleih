@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import PhotoStrip from '@/components/PhotoStrip.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,14 @@ const props = defineProps<{
         club: { name: string; email: string };
         canExtend: boolean;
         canCancelSeries: boolean;
-        return: { condition: string | null; note: string | null; at: string | null; depositReturned: boolean; hasDeposit: boolean } | null;
+        return: {
+            condition: string | null;
+            note: string | null;
+            at: string | null;
+            depositReturned: boolean;
+            hasDeposit: boolean;
+            photos: { id: number; url: string }[];
+        } | null;
         series: { token: string; start_date: string; end_date: string; status: string; statusLabel: string; current: boolean }[] | null;
         extension: { status: string; statusLabel: string; requested_end_date: string; message: string | null; decision_note: string | null } | null;
     };
@@ -89,6 +97,7 @@ const cancel = () => {
                 </p>
                 <p v-if="loan.return.note" class="mt-1">Notiz des Vereins: {{ loan.return.note }}</p>
                 <p v-if="loan.return.hasDeposit" class="mt-1">Kaution: {{ loan.return.depositReturned ? 'zurückgegeben' : 'noch offen' }}</p>
+                <PhotoStrip :photos="loan.return.photos" />
             </div>
             <div v-if="loan.series" class="mt-4 rounded-md border p-3 text-sm">
                 <h2 class="mb-2 font-semibold">Serie mit {{ loan.series.length }} Terminen</h2>

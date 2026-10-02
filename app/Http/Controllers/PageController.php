@@ -30,6 +30,7 @@ class PageController extends Controller
         return Inertia::render('Privacy', [
             'operator' => $this->operator(),
             'retentionDays' => config('imprint.unverified_retention_days'),
+            'photoDays' => config('imprint.photo_retention_days'),
         ]);
     }
 

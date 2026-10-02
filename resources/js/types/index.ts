@@ -88,6 +88,7 @@ export interface Loan {
     next?: string[];
     overdue?: boolean;
     return_condition_label?: string | null;
+    return_photos?: { id: number; url: string }[];
     series_id?: string | null;
     series_total?: number | null;
     pending_extension?: { id: number; requested_end_date: string; previous_end_date: string; message: string | null } | null;

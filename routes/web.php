@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoanRequestController;
 use App\Http\Controllers\Manage;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ReturnPhotoController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::get('anfragen/{token}/bestaetigen', [LoanRequestController::class, 'verif
 Route::post('anfragen/{token}/verlaengern', [LoanRequestController::class, 'extend'])
     ->middleware('throttle:6,1')->name('requests.extend');
 Route::post('anfragen/{token}/serie-stornieren', [LoanRequestController::class, 'cancelSeries'])->name('requests.cancel-series');
+Route::get('anfragen/{token}/rueckgabefotos/{photo}', [ReturnPhotoController::class, 'forBorrower'])->name('requests.return-photo');
 Route::post('anfragen/{token}/stornieren', [LoanRequestController::class, 'cancel'])->name('requests.cancel');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -42,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('eingang/{loanRequest}/verlaengerung/{extension}', [Manage\IncomingController::class, 'decideExtension'])->name('incoming.extension');
         Route::patch('eingang/serie/{series}', [Manage\IncomingController::class, 'decideSeries'])->name('incoming.series');
         Route::get('warteliste', Manage\WaitlistOverviewController::class)->name('waitlist.index');
+        Route::get('rueckgabefotos/{photo}', [ReturnPhotoController::class, 'forClub'])->name('return-photo');
         Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
         Route::get('export/ausleihen.csv', [Manage\ExportController::class, 'loans'])->name('export.loans');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');

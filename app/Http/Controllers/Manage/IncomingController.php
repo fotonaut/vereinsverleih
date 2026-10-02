@@ -9,6 +9,7 @@ use App\Models\LoanExtension;
 use App\Models\LoanRequest;
 use App\Notifications\ExtensionDecided;
 use App\Notifications\LoanSeriesDecided;
+use App\Services\ReturnPhotoStorage;
 use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestDecided;
 use App\Notifications\LoanReturned;
@@ -38,18 +39,19 @@ class IncomingController extends Controller
 
         $loans = LoanRequest::whereHas('item', fn ($q) => $q->where('club_id', $request->user()->club_id))
             ->where('status', '!=', LoanStatus::Unverified->value)
-            ->with(['item:id,name,quantity', 'pendingExtension'])
+            ->with(['item:id,name,quantity', 'pendingExtension', 'returnPhotos:id,loan_request_id'])
             ->orderByRaw("case status when 'pending' then 0 when 'approved' then 1 when 'picked_up' then 2 else 3 end")
             ->orderBy('start_date')
             ->get()
-            ->map(fn (LoanRequest $l) => $l->toArray() + [
+            ->map(fn (LoanRequest $l) => array_replace($l->toArray(), [
                 'status_label' => $l->status->label(),
                 'overdue' => $l->isOverdue(),
                 'return_condition_label' => $l->return_condition?->label(),
+                'return_photos' => $l->returnPhotos->map(fn ($p) => ['id' => $p->id, 'url' => route('manage.return-photo', $p)])->values(),
                 'series_total' => $l->series_id ? (int) ($seriesCounts[$l->series_id] ?? 1) : null,
                 'pending_extension' => $l->pendingExtension,
                 'next' => self::TRANSITIONS[$l->status->value] ?? [],
-            ]);
+            ]));
 
         return Inertia::render('manage/Incoming', ['loans' => $loans, 'conditions' => ReturnCondition::options()]);
     }
@@ -65,6 +67,8 @@ class IncomingController extends Controller
             'return_condition' => ['nullable', Rule::enum(ReturnCondition::class)],
             'return_note' => ['nullable', 'string', 'max:1000'],
             'deposit_returned' => ['nullable', 'boolean'],
+            'photos' => ['nullable', 'array', 'max:'.ReturnPhotoStorage::MAX_PHOTOS],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
         ]);
 
         $allowed = self::TRANSITIONS[$loanRequest->status->value] ?? [];
@@ -94,6 +98,11 @@ class IncomingController extends Controller
         ] : []));
 
         if ($data['status'] === 'returned') {
+            $storage = app(ReturnPhotoStorage::class);
+            foreach ($request->file('photos', []) as $file) {
+                $loanRequest->returnPhotos()->create(['path' => $storage->store($file)]);
+            }
+
             Notification::route('mail', $loanRequest->requester_email)->notify(new LoanReturned($loanRequest->load('item.club')));
         }
 

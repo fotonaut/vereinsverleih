@@ -3,7 +3,7 @@ import PublicLayout from '@/layouts/PublicLayout.vue';
 import type { Operator } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 
-defineProps<{ operator: Operator; retentionDays: number }>();
+defineProps<{ operator: Operator; retentionDays: number; photoDays: number }>();
 </script>
 
 <template>
@@ -66,6 +66,17 @@ defineProps<{ operator: Operator; retentionDays: number }>();
                     Abs. 1 lit. b DSGVO). Einträge werden nach Ablauf des Zeitraums geschlossen; unbestätigte Einträge werden nach
                     {{ retentionDays }} Tagen gelöscht. Du kannst dich jederzeit über den Link in der E-Mail abmelden. Der verleihende Verein sieht
                     den Namen der Wartenden.
+                </p>
+            </section>
+
+            <section class="space-y-2">
+                <h2 class="text-lg font-semibold">4b. Rückgabe-Protokoll und Fotos</h2>
+                <p>
+                    Nimmt ein Verein einen Gegenstand zurück, kann er Zustand, Notiz und bis zu vier Fotos hinterlegen. Die Angaben sehen der
+                    verleihende Verein und die Ausleihenden (über den Link ihrer Anfrage). Fotos werden nicht öffentlich gespeichert, sondern nur über
+                    geschützte Links ausgeliefert, verkleinert und ohne Metadaten wie GPS-Standort neu gespeichert. Sie werden nach
+                    {{ photoDays }} Tagen automatisch gelöscht, oder früher, wenn der Gegenstand gelöscht wird. Bitte keine Personen fotografieren
+                    (Art. 6 Abs. 1 lit. b und f DSGVO).
                 </p>
             </section>
 

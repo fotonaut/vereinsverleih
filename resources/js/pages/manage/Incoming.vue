@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CsvExport from '@/components/CsvExport.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
+import PhotoStrip from '@/components/PhotoStrip.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -17,15 +18,21 @@ const notes = reactive<Record<number, string>>({});
 // Rückgabe-Protokoll: statt sofort zu speichern erst Zustand/Notiz/Kaution abfragen
 const returning = ref<number | null>(null);
 const returnForm = reactive({ return_condition: 'ok', return_note: '', deposit_returned: false });
+const photos = ref<File[]>([]);
+const MAX_PHOTOS = 4;
+const pickPhotos = (e: Event) => {
+    photos.value = Array.from((e.target as HTMLInputElement).files ?? []).slice(0, MAX_PHOTOS);
+};
 const startReturn = (loan: Loan) => {
     Object.assign(returnForm, { return_condition: 'ok', return_note: '', deposit_returned: false });
+    photos.value = [];
     returning.value = loan.id;
 };
 const confirmReturn = (loan: Loan) =>
-    router.patch(
+    router.post(
         route('manage.incoming.update', loan.id),
-        { status: 'returned', decision_note: notes[loan.id] ?? '', ...returnForm },
-        { preserveScroll: true, onSuccess: () => (returning.value = null) },
+        { _method: 'patch', status: 'returned', decision_note: notes[loan.id] ?? '', ...returnForm, photos: photos.value },
+        { forceFormData: true, preserveScroll: true, onSuccess: () => (returning.value = null) },
     );
 const errors = usePage().props.errors as Record<string, string>;
 
@@ -142,6 +149,12 @@ const change = (loan: Loan, status: string) =>
                             placeholder="z. B. Riss an der Seitenwand"
                         />
                     </label>
+                    <label class="grid gap-1">
+                        Fotos (optional, max. {{ MAX_PHOTOS }}, JPG/PNG/WebP)
+                        <input type="file" accept="image/jpeg,image/png,image/webp" multiple class="text-xs" @change="pickPhotos" />
+                    </label>
+                    <p v-if="photos.length" class="text-xs text-muted-foreground">{{ photos.length }} Foto(s) ausgewählt.</p>
+                    <p v-if="errors.photos || errors['photos.0']" class="text-xs text-red-700">{{ errors.photos || errors['photos.0'] }}</p>
                     <label class="flex items-center gap-2"
                         ><input v-model="returnForm.deposit_returned" type="checkbox" /> Kaution zurückgegeben</label
                     >
@@ -154,6 +167,7 @@ const change = (loan: Loan, status: string) =>
                 <p v-if="loan.status === 'returned' && loan.return_condition_label" class="mt-2 text-xs text-muted-foreground">
                     Zurückgegeben: {{ loan.return_condition_label }}
                 </p>
+                <PhotoStrip v-if="loan.return_photos?.length" :photos="loan.return_photos" />
             </article>
         </div>
     </AppLayout>

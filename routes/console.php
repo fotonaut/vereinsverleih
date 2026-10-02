@@ -35,3 +35,9 @@ Schedule::call(function () {
         ->where('created_at', '<', now()->subDays(config('imprint.unverified_retention_days')))
         ->delete();
 })->daily()->name('cleanup-waitlist');
+
+// Rückgabe-Fotos nach Ablauf der Aufbewahrungsfrist löschen (Datei + Datensatz).
+Schedule::call(function () {
+    App\Models\LoanReturnPhoto::where('created_at', '<', now()->subDays(config('imprint.photo_retention_days')))
+        ->get()->each->delete();
+})->daily()->name('prune-return-photos');

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AvailabilityCalendar, { type CalendarReservation } from '@/components/AvailabilityCalendar.vue';
+import PhotoStrip from '@/components/PhotoStrip.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -19,6 +20,7 @@ const props = defineProps<{
         attention: boolean;
         note: string | null;
         deposit_returned: boolean;
+        photos: { id: number; url: string }[];
     }[];
     waitlist: { id: number; requester: string; quantity: number; start_date: string; end_date: string; series: string | null }[];
     loans: { id: number; requester: string; status: string; status_label: string; quantity: number; start_date: string; end_date: string }[];
@@ -65,6 +67,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             >
                         </div>
                         <p v-if="r.note" class="mt-1 text-muted-foreground">{{ r.note }}</p>
+                        <PhotoStrip :photos="r.photos" />
                     </li>
                 </ul>
             </section>
