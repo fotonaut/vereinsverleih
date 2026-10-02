@@ -25,7 +25,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Verein registrieren" description="Lege den Zugang für euren Verein an und trage euer Inventar ein">
+    <AuthBase scene="register" title="Verein registrieren" description="Lege den Zugang für euren Verein an und trage euer Inventar ein">
         <Head title="Verein registrieren" />
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">

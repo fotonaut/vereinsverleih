@@ -75,7 +75,7 @@ Impressum und Datenschutz werden aus den `IMPRINT_*`-Variablen gespeist (siehe `
 
 ## Logo, Icons und Bilder
 
-Logo, Favicons (SVG/ICO/PNG, Apple-Touch, Web-App-Manifest), Social-Image (`og-image.png`) und die Illustrationen (Hero, Leerzustand) werden aus `brand/build.py` erzeugt – Farben und Formen dort anpassen und `python3 brand/build.py` ausführen (benötigt Inkscape und ImageMagick). Die Ergebnisse liegen in `public/` und `docs/`. Gegenstände ohne Foto bekommen automatisch ein Kategorie-Symbol als Platzhalter (`resources/js/components/CategoryArt.vue`).
+Logo, Favicons (SVG/ICO/PNG, Apple-Touch, Web-App-Manifest), Social-Image (`og-image.png`) und die Illustrationen (Hero, Leerzustand, Anmeldeseiten) werden aus `brand/build.py` erzeugt – Farben und Formen dort anpassen und `python3 brand/build.py` ausführen (benötigt Inkscape und ImageMagick). Die Ergebnisse liegen in `public/` und `docs/`. Gegenstände ohne Foto bekommen automatisch ein Kategorie-Symbol als Platzhalter (`resources/js/components/CategoryArt.vue`).
 
 ## Lizenz
 

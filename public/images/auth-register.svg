@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Zwei Vereinsheime tauschen per Handwagen Kisten aus">
+  <defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3ee"/><stop offset=".62" stop-color="#fbfaf7"/></linearGradient></defs>
+  <rect width="800" height="1000" fill="url(#sky2)"/>
+  <circle cx="640" cy="190" r="86" fill="#f6c453" opacity=".25"/><circle cx="640" cy="190" r="52" fill="#f6c453"/>
+  <g fill="#fff" opacity=".95"><ellipse cx="170" cy="150" rx="70" ry="20"/><ellipse cx="226" cy="132" rx="44" ry="17"/><ellipse cx="470" cy="300" rx="60" ry="17"/><ellipse cx="514" cy="286" rx="34" ry="14"/></g>
+  <rect y="900" width="800" height="100" fill="#5fae93"/>
+  <g transform="translate(0 -85)">
+  <path d="M0 640 Q170 560 360 620 T800 600 V1000 H0Z" fill="#bfe0d5"/>
+  <path d="M0 700 Q240 640 470 690 T800 670 V1000 H0Z" fill="#8cc9b2"/>
+  <rect y="760" width="800" height="240" fill="#5fae93"/>
+  <path d="M0 800 Q400 770 800 800 V860 Q400 830 0 860Z" fill="#e9dcc6"/>
+
+  <g transform="translate(170 760)"><rect x="-70" y="-90" width="140" height="90" fill="#ffffff"/><polygon points="-88,-90 0,-152 88,-90" fill="#c8501e"/><rect x="38" y="-146" width="16" height="34" fill="#c8501e"/><rect x="-16" y="-52" width="32" height="52" rx="4" fill="#2b3a42"/><rect x="-56" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/><rect x="28" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/><rect x="-1.5" y="-190" width="3" height="40" fill="#8a6a4a"/><polygon points="1.5,-190 26,-182 1.5,-174" fill="#e8833a"/></g>
+  <g transform="translate(630 760)"><rect x="-70" y="-90" width="140" height="90" fill="#fdf0dc"/><polygon points="-88,-90 0,-152 88,-90" fill="#1f6f5c"/><rect x="38" y="-146" width="16" height="34" fill="#1f6f5c"/><rect x="-16" y="-52" width="32" height="52" rx="4" fill="#7a4b2a"/><rect x="-56" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/><rect x="28" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/><rect x="-1.5" y="-190" width="3" height="40" fill="#8a6a4a"/><polygon points="1.5,-190 26,-182 1.5,-174" fill="#e8833a"/></g>
+  <path d="M170 470 Q400 540 630 470" stroke="#8a6a4a" stroke-width="2.5" fill="none"/>
+  <polygon points="157.0,468.0 183.0,468.0 170.0,496.0" fill="#e8833a"/><polygon points="198.8,481.2 224.8,481.2 211.8,509.2" fill="#ffffff"/><polygon points="240.6,491.8 266.6,491.8 253.6,519.8" fill="#1f6f5c"/><polygon points="282.5,499.7 308.5,499.7 295.5,527.7" fill="#f6c453"/><polygon points="324.3,505.0 350.3,505.0 337.3,533.0" fill="#e8833a"/><polygon points="366.1,507.7 392.1,507.7 379.1,535.7" fill="#ffffff"/><polygon points="407.9,507.7 433.9,507.7 420.9,535.7" fill="#1f6f5c"/><polygon points="449.7,505.0 475.7,505.0 462.7,533.0" fill="#f6c453"/><polygon points="491.5,499.7 517.5,499.7 504.5,527.7" fill="#e8833a"/><polygon points="533.4,491.8 559.4,491.8 546.4,519.8" fill="#ffffff"/><polygon points="575.2,481.2 601.2,481.2 588.2,509.2" fill="#1f6f5c"/><polygon points="617.0,468.0 643.0,468.0 630.0,496.0" fill="#f6c453"/>
+
+  <!-- Handwagen mit Kisten in der Mitte -->
+  <g transform="translate(400 836)">
+    <rect x="-56" y="-34" width="112" height="30" rx="4" fill="#b9824f"/><rect x="-56" y="-34" width="112" height="7" fill="#d09a62"/>
+    <line x1="56" y1="-24" x2="104" y2="-52" stroke="#8a6a4a" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="-30" cy="-2" r="16" fill="#5a4630"/><circle cx="-30" cy="-2" r="6" fill="#d9c9ae"/><circle cx="32" cy="-2" r="16" fill="#5a4630"/><circle cx="32" cy="-2" r="6" fill="#d9c9ae"/>
+    <g transform="translate(-52 -74) scale(.95)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g><g transform="translate(-14 -74) scale(.95)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g><g transform="translate(-33 -98) scale(.95)"><polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/></g>
+  </g>
+  <g transform="translate(400 640) scale(1.467)"><circle r="30" fill="#e8833a" stroke="#fff" stroke-width="5"/><g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M-14 -7H14M7 -14L14 -7L7 0"/><path d="M14 9H-14M-7 2L-14 9L-7 16"/></g></g>
+  <g stroke="#e8833a" stroke-width="4" stroke-linecap="round" opacity=".8"><path d="M400 574V588"/><path d="M360 586L368 598"/><path d="M440 586L432 598"/></g>
+  </g>
+</svg>

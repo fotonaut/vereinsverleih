@@ -183,6 +183,121 @@ def og_svg():
 '''
 
 
+
+# ---------- Anmeldeseiten: zwei Hochformat-Szenen (800x1000) ----------
+CUBE = '''<polygon points="32,11 51,21.5 32,32 13,21.5" fill="#ffffff"/><polygon points="13,21.5 32,32 32,53 13,42.5" fill="#cfeae1"/><polygon points="51,21.5 32,32 32,53 51,42.5" fill="#9fd3c3"/>'''
+
+
+def swap_badge(x, y, r=34):
+    k = r / 30
+    return (f'<g transform="translate({x} {y}) scale({k:.3f})"><circle r="30" fill="{ORANGE}" stroke="#fff" stroke-width="5"/>'
+            '<g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">'
+            '<path d="M-14 -7H14M7 -14L14 -7L7 0"/><path d="M14 9H-14M-7 2L-14 9L-7 16"/></g></g>')
+
+
+def tent_local(stripe=ORANGE, roof=ORANGE_D, shade='#a93f16', body='#ffffff', door='#2b3a42'):
+    stripes = ''.join(f'<rect x="{-110 + i*40}" y="-124" width="20" height="124" fill="{stripe}"/>' for i in range(6))
+    scallops = ''.join(f'<path d="M{-150 + i*40} -124 a20 20 0 0 0 40 0z" fill="{roof}"/>' for i in range(8))
+    return (f'<rect x="-130" y="-124" width="260" height="124" fill="{body}"/>{stripes}'
+            f'<polygon points="-150,-124 0,-218 150,-124" fill="{roof}"/><polygon points="0,-218 150,-124 0,-124" fill="{shade}" opacity=".55"/>'
+            f'{scallops}<path d="M-32 0V-68a32 32 0 0 1 64 0V0z" fill="{door}"/>'
+            f'<rect x="-4" y="-240" width="8" height="24" fill="#8a6a4a"/><polygon points="4,-240 30,-232 4,-224" fill="{TEAL}"/>')
+
+
+def house_local(wall, roof, door):
+    return (f'<rect x="-70" y="-90" width="140" height="90" fill="{wall}"/>'
+            f'<polygon points="-88,-90 0,-152 88,-90" fill="{roof}"/><rect x="38" y="-146" width="16" height="34" fill="{roof}"/>'
+            f'<rect x="-16" y="-52" width="32" height="52" rx="4" fill="{door}"/>'
+            f'<rect x="-56" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/><rect x="28" y="-70" width="28" height="26" rx="3" fill="#cfe8f1"/>'
+            f'<rect x="-1.5" y="-190" width="3" height="40" fill="#8a6a4a"/><polygon points="1.5,-190 26,-182 1.5,-174" fill="{ORANGE}"/>')
+
+
+def auth_welcome_svg():
+    stars = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#fff" opacity="{o}"/>' for x, y, r, o in
+                    [(80,90,2,.8),(180,200,1.6,.6),(300,60,2.2,.9),(420,170,1.5,.6),(520,80,2,.8),(700,260,1.8,.7),(130,330,1.5,.5),
+                     (360,290,1.4,.5),(600,350,1.6,.5),(740,70,2.2,.9),(250,140,1.2,.5),(470,40,1.6,.7),(60,240,1.4,.5),(660,170,1.3,.6)])
+    bulbs = ''
+    for i in range(11):
+        t = i / 10
+        x = 90 + t * 620
+        y = 560 + 46 * (1 - (2 * t - 1) ** 2)
+        bulbs += f'<circle cx="{x:.0f}" cy="{y:.0f}" r="14" fill="#fde68a" opacity=".22"/><circle cx="{x:.0f}" cy="{y:.0f}" r="6" fill="#fde68a"/>'
+    flies = ''.join(f'<circle cx="{x}" cy="{y}" r="2.4" fill="#fde68a" opacity=".85"/>' for x, y in [(110,700),(250,640),(560,690),(690,640),(640,760),(60,760)])
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abendstimmung auf der Vereinswiese: beleuchtetes Festzelt unter Sternen">
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c2b24"/><stop offset=".45" stop-color="#18594a"/><stop offset=".66" stop-color="#e59a4a"/><stop offset=".74" stop-color="#f6c453"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fde68a" stop-opacity=".8"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#dusk)"/>
+  {stars}
+  <circle cx="620" cy="170" r="84" fill="#fdf3c8" opacity=".14"/><circle cx="620" cy="170" r="48" fill="#fdf3c8"/>
+  <rect y="900" width="800" height="100" fill="#0b2f26"/>
+  <g transform="translate(0 -85)">
+  <path d="M0 700 Q160 610 360 680 T800 650 V1000 H0Z" fill="#1d6b58"/>
+  <path d="M0 760 Q220 690 430 750 T800 730 V1000 H0Z" fill="#14503f"/>
+  <path d="M0 820 Q260 780 520 825 T800 810 V1000 H0Z" fill="#0e3a2f"/>
+  <rect y="880" width="800" height="120" fill="#0b2f26"/>
+
+  <rect x="86" y="520" width="8" height="270" fill="#6b4f35"/><rect x="706" y="520" width="8" height="270" fill="#6b4f35"/>
+  <path d="M90 560 Q400 650 710 560" stroke="#6b4f35" stroke-width="2.5" fill="none"/>
+  {bulbs}
+
+  <circle cx="400" cy="722" r="190" fill="url(#glow)"/>
+  <g transform="translate(400 800) scale(1.18)">{tent_local(stripe="#d9772f", roof="#9c3d15", shade="#7e2f10", body="#f1dcc6", door="#fcd877")}</g>
+
+  <g transform="translate(150 835) scale(.9)">{CUBE}</g><g transform="translate(186 835) scale(.9)">{CUBE}</g><g transform="translate(168 812) scale(.9)">{CUBE}</g>
+  <g opacity=".95">
+    <rect x="560" y="800" width="170" height="11" rx="3" fill="#8a6a4a"/><rect x="574" y="811" width="8" height="38" fill="#5f4630"/><rect x="708" y="811" width="8" height="38" fill="#5f4630"/>
+    <rect x="552" y="824" width="186" height="9" rx="3" fill="#a07448"/>
+    <rect x="598" y="784" width="16" height="16" rx="3" fill="#fde68a"/><rect x="660" y="784" width="16" height="16" rx="3" fill="#fde68a"/>
+  </g>
+  {flies}
+  {swap_badge(400, 430, 38)}
+  </g>
+</svg>
+'''
+
+
+def auth_register_svg():
+    flags = ''
+    cols = [ORANGE, '#ffffff', TEAL, '#f6c453']
+    n = 12
+    for i in range(n):
+        t = i / (n - 1)
+        x = 170 + t * 460
+        y = 468 + 40 * (1 - (2 * t - 1) ** 2)
+        flags += f'<polygon points="{x-13:.1f},{y:.1f} {x+13:.1f},{y:.1f} {x:.1f},{y+28:.1f}" fill="{cols[i % 4]}"/>'
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Zwei Vereinsheime tauschen per Handwagen Kisten aus">
+  <defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3ee"/><stop offset=".62" stop-color="{CREAM}"/></linearGradient></defs>
+  <rect width="800" height="1000" fill="url(#sky2)"/>
+  <circle cx="640" cy="190" r="86" fill="#f6c453" opacity=".25"/><circle cx="640" cy="190" r="52" fill="#f6c453"/>
+  <g fill="#fff" opacity=".95"><ellipse cx="170" cy="150" rx="70" ry="20"/><ellipse cx="226" cy="132" rx="44" ry="17"/><ellipse cx="470" cy="300" rx="60" ry="17"/><ellipse cx="514" cy="286" rx="34" ry="14"/></g>
+  <rect y="900" width="800" height="100" fill="#5fae93"/>
+  <g transform="translate(0 -85)">
+  <path d="M0 640 Q170 560 360 620 T800 600 V1000 H0Z" fill="#bfe0d5"/>
+  <path d="M0 700 Q240 640 470 690 T800 670 V1000 H0Z" fill="#8cc9b2"/>
+  <rect y="760" width="800" height="240" fill="#5fae93"/>
+  <path d="M0 800 Q400 770 800 800 V860 Q400 830 0 860Z" fill="#e9dcc6"/>
+
+  <g transform="translate(170 760)">{house_local('#ffffff', ORANGE_D, '#2b3a42')}</g>
+  <g transform="translate(630 760)">{house_local('#fdf0dc', TEAL, '#7a4b2a')}</g>
+  <path d="M170 470 Q400 540 630 470" stroke="#8a6a4a" stroke-width="2.5" fill="none"/>
+  {flags}
+
+  <!-- Handwagen mit Kisten in der Mitte -->
+  <g transform="translate(400 836)">
+    <rect x="-56" y="-34" width="112" height="30" rx="4" fill="#b9824f"/><rect x="-56" y="-34" width="112" height="7" fill="#d09a62"/>
+    <line x1="56" y1="-24" x2="104" y2="-52" stroke="#8a6a4a" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="-30" cy="-2" r="16" fill="#5a4630"/><circle cx="-30" cy="-2" r="6" fill="#d9c9ae"/><circle cx="32" cy="-2" r="16" fill="#5a4630"/><circle cx="32" cy="-2" r="6" fill="#d9c9ae"/>
+    <g transform="translate(-52 -74) scale(.95)">{CUBE}</g><g transform="translate(-14 -74) scale(.95)">{CUBE}</g><g transform="translate(-33 -98) scale(.95)">{CUBE}</g>
+  </g>
+  {swap_badge(400, 640, 44)}
+  <g stroke="{ORANGE}" stroke-width="4" stroke-linecap="round" opacity=".8"><path d="M400 574V588"/><path d="M360 586L368 598"/><path d="M440 586L432 598"/></g>
+  </g>
+</svg>
+'''
+
+
 def mono_icon_note():
     # Die einfarbige Variante (currentColor) liegt als Vue-Komponente in resources/js/components/AppLogoIcon.vue
     pass
@@ -195,6 +310,8 @@ def main():
     write(os.path.join(PUB, 'logo.svg'), mark_svg())
     write(os.path.join(PUB, 'images', 'hero.svg'), hero_svg())
     write(os.path.join(PUB, 'images', 'empty-box.svg'), empty_svg())
+    write(os.path.join(PUB, 'images', 'auth-welcome.svg'), auth_welcome_svg())
+    write(os.path.join(PUB, 'images', 'auth-register.svg'), auth_register_svg())
     write(os.path.join(ROOT, 'brand', 'og-image.svg'), og_svg())
 
     # Rastergrafiken
