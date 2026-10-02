@@ -23,7 +23,7 @@ Pro Gegenstand einstellbar:
 - **Rückgabe-Erinnerung** am Tag vor Ende, **Mahnung** bei Überfälligkeit (max. 3×, auch an den Verein), **Verlängerungsanfragen** mit Genehmigung
 - **Wiederholungs-Ausleihen** (wöchentlich, alle 2 Wochen, monatlich, bis 12 Termine): alle Termine werden auf einmal geprüft (alles oder nichts), der Verein entscheidet über die ganze Serie, die Ausleihenden bekommen gebündelte Mails
 - **Warteliste** für belegte Zeiträume: bei Absage, Storno, Rückgabe oder mehr Bestand wird der Erste in der Schlange per E-Mail informiert (Gäste mit E-Mail-Bestätigung); auch für Serien – dann kommt die Mail, sobald **alle** Termine frei sind
-- **Rückgabe-Protokoll**: Zustand (einwandfrei … beschädigt), Notiz, Kaution und bis zu 4 **Fotos** (privat gespeichert, verkleinert, ohne EXIF, automatisch nach 365 Tagen gelöscht) beim Zurücknehmen, Bestätigungsmail an die Ausleihenden, „prüfen“-Markierung und Historie je Gegenstand
+- **Rückgabe-Protokoll**: Zustand (einwandfrei … beschädigt), Notiz, Kaution und bis zu 4 **Fotos** (privat gespeichert, verkleinert, ohne EXIF, automatisch nach 365 Tagen gelöscht) beim Zurücknehmen (Fotos auch nachträglich ergänz- und löschbar), Bestätigungsmail an die Ausleihenden, „prüfen“-Markierung und Historie je Gegenstand
 - **Benachrichtigungs-Einstellungen** je Verein (Themen, Empfänger, Zusatzadresse, Test-Mail)
 - **Dashboard** mit Kennzahlen und Warteliste-Widget, Seite „Meine Warteliste“ (worauf wir warten / wer auf uns wartet)
 - **CSV-Export** der Ausleihen (Excel-tauglich, Filter Status/Zeitraum)

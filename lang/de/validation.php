@@ -32,11 +32,13 @@ return [
         'numeric' => ':attribute darf nicht größer als :max sein.',
         'file' => ':attribute darf nicht größer als :max Kilobyte sein.',
         'string' => ':attribute darf nicht länger als :max Zeichen sein.',
+        'array' => ':attribute darf höchstens :max Einträge enthalten.',
     ],
     'min' => [
         'numeric' => ':attribute muss mindestens :min sein.',
         'file' => ':attribute muss mindestens :min Kilobyte groß sein.',
         'string' => ':attribute muss mindestens :min Zeichen lang sein.',
+        'array' => ':attribute muss mindestens :min Eintrag/Einträge enthalten.',
     ],
     'password' => [
         'letters' => ':attribute muss mindestens einen Buchstaben enthalten.',
@@ -62,6 +64,8 @@ return [
         'deposit_euro' => 'Kaution',
         'lending_scope' => 'Verleih-Einstellung',
         'image' => 'Foto',
+        'photos' => 'Fotos',
+        'photos.*' => 'Das Foto',
         'category_id' => 'Kategorie',
         'phone' => 'Telefon',
         'street' => 'Straße',

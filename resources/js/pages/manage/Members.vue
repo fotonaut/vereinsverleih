@@ -8,12 +8,13 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { selectClass } from '@/lib/format';
 import type { BreadcrumbItem } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineProps<{ members: { id: number; name: string; email: string; role: string }[] }>();
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Mitglieder', href: '/verwaltung/mitglieder' }];
 const form = useForm({ name: '', email: '', role: 'member' });
-const errors = usePage().props.errors as Record<string, string>;
+const errors = computed(() => usePage().props.errors as Record<string, string>);
 
 const invite = () => form.post(route('manage.members.store'), { onSuccess: () => form.reset() });
 const remove = (id: number, name: string) => {

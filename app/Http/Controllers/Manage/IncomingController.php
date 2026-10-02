@@ -155,6 +155,33 @@ class IncomingController extends Controller
         return back()->with('flash', $data['decision'] === 'approved' ? 'Verlängerung genehmigt.' : 'Verlängerung abgelehnt.');
     }
 
+    /** Fotos zu einer bereits zurückgenommenen Ausleihe nachreichen (insgesamt höchstens MAX_PHOTOS). */
+    public function addPhotos(Request $request, LoanRequest $loanRequest): RedirectResponse
+    {
+        Gate::authorize('decide', $loanRequest);
+
+        if ($loanRequest->status !== LoanStatus::Returned) {
+            return back()->withErrors(['photos' => 'Fotos lassen sich nur zu zurückgenommenen Ausleihen hinzufügen.']);
+        }
+
+        $free = ReturnPhotoStorage::MAX_PHOTOS - $loanRequest->returnPhotos()->count();
+        if ($free <= 0) {
+            return back()->withErrors(['photos' => 'Es sind bereits '.ReturnPhotoStorage::MAX_PHOTOS.' Fotos vorhanden. Lösche zuerst eines.']);
+        }
+
+        $request->validate([
+            'photos' => ['required', 'array', 'min:1', 'max:'.$free],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+        ], ['photos.max' => "Es ist nur noch Platz für {$free} weitere(s) Foto(s)."]);
+
+        $storage = app(ReturnPhotoStorage::class);
+        foreach ($request->file('photos') as $file) {
+            $loanRequest->returnPhotos()->create(['path' => $storage->store($file)]);
+        }
+
+        return back()->with('flash', count($request->file('photos')).' Foto(s) hinzugefügt.');
+    }
+
     /** Entscheidung über alle noch offenen Termine einer Serie auf einmal (genehmigen/ablehnen). */
     public function decideSeries(Request $request, string $series): RedirectResponse
     {

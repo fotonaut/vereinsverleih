@@ -159,4 +159,90 @@ class ReturnPhotosTest extends TestCase
         $this->actingAs($owner)->get("/verwaltung/gegenstaende/{$item->id}/kalender")->assertInertia(fn (Assert $page) => $page
             ->has('returns.0.photos', 1));
     }
+
+    private function returned(int $photos = 0): array
+    {
+        [$owner, $item, $loan] = $this->pickedUp();
+        $this->returnWith($owner, $loan, array_map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg"), range(1, max($photos, 1))));
+        if ($photos === 0) {
+            $loan->returnPhotos->each->delete();
+        }
+
+        return [$owner, $item, $loan->fresh()];
+    }
+
+    public function test_photos_can_be_added_after_the_return(): void
+    {
+        [$owner, , $loan] = $this->returned(1);
+
+        $this->actingAs($owner)->post("/verwaltung/eingang/{$loan->id}/fotos", [
+            'photos' => [UploadedFile::fake()->image('spaeter.jpg', 2000, 1000), UploadedFile::fake()->image('spaeter2.png')],
+        ])->assertSessionHasNoErrors()->assertSessionHas('flash');
+
+        $this->assertSame(3, $loan->returnPhotos()->count());
+        foreach ($loan->returnPhotos as $p) {
+            Storage::disk(LoanReturnPhoto::DISK)->assertExists($p->path);
+        }
+    }
+
+    public function test_total_is_capped_at_four_photos(): void
+    {
+        [$owner, , $loan] = $this->returned(3);
+
+        $this->actingAs($owner)->post("/verwaltung/eingang/{$loan->id}/fotos", [
+            'photos' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
+        ])->assertSessionHasErrors('photos');
+        $this->assertSame(3, $loan->returnPhotos()->count());
+
+        $this->actingAs($owner)->post("/verwaltung/eingang/{$loan->id}/fotos", ['photos' => [UploadedFile::fake()->image('c.jpg')]])
+            ->assertSessionHasNoErrors();
+        $this->assertSame(4, $loan->returnPhotos()->count());
+
+        $this->actingAs($owner)->post("/verwaltung/eingang/{$loan->id}/fotos", ['photos' => [UploadedFile::fake()->image('d.jpg')]])
+            ->assertSessionHasErrors('photos');
+        $this->assertSame(4, $loan->returnPhotos()->count());
+    }
+
+    public function test_only_for_returned_loans_valid_images_and_the_owning_club(): void
+    {
+        [$owner, , $open] = $this->pickedUp();
+        $this->actingAs($owner)->post("/verwaltung/eingang/{$open->id}/fotos", ['photos' => [UploadedFile::fake()->image('a.jpg')]])
+            ->assertSessionHasErrors('photos');
+
+        [$owner2, , $returned] = $this->returned(0);
+        $this->actingAs($owner2)->post("/verwaltung/eingang/{$returned->id}/fotos", ['photos' => []])->assertSessionHasErrors('photos');
+        $this->actingAs($owner2)->post("/verwaltung/eingang/{$returned->id}/fotos", ['photos' => [UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')]])
+            ->assertSessionHasErrors('photos.0');
+
+        $stranger = User::factory()->clubAdmin()->create();
+        $this->actingAs($stranger)->post("/verwaltung/eingang/{$returned->id}/fotos", ['photos' => [UploadedFile::fake()->image('a.jpg')]])->assertForbidden();
+        $this->assertSame(0, LoanReturnPhoto::count());
+    }
+
+    public function test_club_can_delete_a_single_photo_with_its_file(): void
+    {
+        [$owner, , $loan] = $this->returned(2);
+        [$first, $second] = $loan->returnPhotos()->orderBy('id')->get()->all();
+
+        $this->actingAs($owner)->delete("/verwaltung/rueckgabefotos/{$first->id}")->assertSessionHas('flash');
+
+        Storage::disk(LoanReturnPhoto::DISK)->assertMissing($first->path);
+        Storage::disk(LoanReturnPhoto::DISK)->assertExists($second->path);
+        $this->assertSame(1, $loan->returnPhotos()->count());
+    }
+
+    public function test_strangers_guests_and_borrowers_cannot_delete_photos(): void
+    {
+        [$owner, , $loan] = $this->returned(1);
+        $photo = $loan->returnPhotos()->firstOrFail();
+        $stranger = User::factory()->clubAdmin()->create();
+
+        $this->actingAs($stranger)->delete("/verwaltung/rueckgabefotos/{$photo->id}")->assertForbidden();
+        auth()->logout();
+        $this->delete("/verwaltung/rueckgabefotos/{$photo->id}")->assertRedirect('/login');
+        $this->delete("/anfragen/{$loan->token}/rueckgabefotos/{$photo->id}")->assertStatus(405);
+
+        $this->assertSame(1, LoanReturnPhoto::count());
+        Storage::disk(LoanReturnPhoto::DISK)->assertExists($photo->path);
+    }
 }

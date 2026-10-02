@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LoanRequest;
 use App\Models\LoanReturnPhoto;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +18,15 @@ class ReturnPhotoController extends Controller
         Gate::authorize('decide', $photo->loanRequest);
 
         return $this->serve($photo);
+    }
+
+    /** Einzelnes Foto löschen (nur der verleihende Verein). Die Datei wird per Modell-Event mitgelöscht. */
+    public function destroy(LoanReturnPhoto $photo): RedirectResponse
+    {
+        Gate::authorize('decide', $photo->loanRequest);
+        $photo->delete();
+
+        return back()->with('flash', 'Foto gelöscht.');
     }
 
     /** Für die Ausleihenden über den geheimen Link ihrer Anfrage. */

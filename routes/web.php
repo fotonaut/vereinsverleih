@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('eingang/serie/{series}', [Manage\IncomingController::class, 'decideSeries'])->name('incoming.series');
         Route::get('warteliste', Manage\WaitlistOverviewController::class)->name('waitlist.index');
         Route::get('rueckgabefotos/{photo}', [ReturnPhotoController::class, 'forClub'])->name('return-photo');
+        Route::delete('rueckgabefotos/{photo}', [ReturnPhotoController::class, 'destroy'])->name('return-photo.destroy');
+        Route::post('eingang/{loanRequest}/fotos', [Manage\IncomingController::class, 'addPhotos'])->name('incoming.photos');
         Route::get('ausgang', [Manage\OutgoingController::class, 'index'])->name('outgoing.index');
         Route::get('export/ausleihen.csv', [Manage\ExportController::class, 'loans'])->name('export.loans');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');

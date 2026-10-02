@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { date } from '@/lib/format';
 import type { BreadcrumbItem, Loan } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 defineProps<{ loans: Loan[]; conditions: { value: string; label: string }[] }>();
 
@@ -20,6 +20,30 @@ const returning = ref<number | null>(null);
 const returnForm = reactive({ return_condition: 'ok', return_note: '', deposit_returned: false });
 const photos = ref<File[]>([]);
 const MAX_PHOTOS = 4;
+
+// Fotos nachträglich zu einer bereits zurückgenommenen Ausleihe hinzufügen / einzelne löschen
+const extraFiles = reactive<Record<number, File[]>>({});
+const fileKey = reactive<Record<number, number>>({}); // setzt das <input type=file> nach dem Upload zurück
+const pickExtra = (loan: Loan, e: Event) => {
+    const free = MAX_PHOTOS - (loan.return_photos?.length ?? 0);
+    extraFiles[loan.id] = Array.from((e.target as HTMLInputElement).files ?? []).slice(0, free);
+};
+const uploadExtra = (loan: Loan) =>
+    router.post(
+        route('manage.incoming.photos', loan.id),
+        { photos: extraFiles[loan.id] ?? [] },
+        {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                extraFiles[loan.id] = [];
+                fileKey[loan.id] = (fileKey[loan.id] ?? 0) + 1;
+            },
+        },
+    );
+const removePhoto = (id: number) => {
+    if (window.confirm('Dieses Foto endgültig löschen?')) router.delete(route('manage.return-photo.destroy', id), { preserveScroll: true });
+};
 const pickPhotos = (e: Event) => {
     photos.value = Array.from((e.target as HTMLInputElement).files ?? []).slice(0, MAX_PHOTOS);
 };
@@ -34,7 +58,7 @@ const confirmReturn = (loan: Loan) =>
         { _method: 'patch', status: 'returned', decision_note: notes[loan.id] ?? '', ...returnForm, photos: photos.value },
         { forceFormData: true, preserveScroll: true, onSuccess: () => (returning.value = null) },
     );
-const errors = usePage().props.errors as Record<string, string>;
+const errors = computed(() => usePage().props.errors as Record<string, string>);
 
 const labels: Record<string, string> = {
     approved: 'Genehmigen',
@@ -167,7 +191,30 @@ const change = (loan: Loan, status: string) =>
                 <p v-if="loan.status === 'returned' && loan.return_condition_label" class="mt-2 text-xs text-muted-foreground">
                     Zurückgegeben: {{ loan.return_condition_label }}
                 </p>
-                <PhotoStrip v-if="loan.return_photos?.length" :photos="loan.return_photos" />
+                <PhotoStrip v-if="loan.return_photos?.length" :photos="loan.return_photos" deletable @remove="removePhoto" />
+
+                <div
+                    v-if="loan.status === 'returned' && (loan.return_photos?.length ?? 0) < MAX_PHOTOS"
+                    class="mt-2 flex flex-wrap items-center gap-2 text-xs"
+                >
+                    <label class="text-muted-foreground"
+                        >Foto(s) nachreichen (noch {{ MAX_PHOTOS - (loan.return_photos?.length ?? 0) }} möglich)
+                        <input
+                            :key="fileKey[loan.id] ?? 0"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            class="ml-2"
+                            @change="pickExtra(loan, $event)"
+                        />
+                    </label>
+                    <Button v-if="extraFiles[loan.id]?.length" size="sm" @click="uploadExtra(loan)"
+                        >{{ extraFiles[loan.id].length }} hochladen</Button
+                    >
+                </div>
+                <p v-if="loan.status === 'returned' && (errors.photos || errors['photos.0'])" class="mt-1 text-xs text-red-700">
+                    {{ errors.photos || errors['photos.0'] }}
+                </p>
             </article>
         </div>
     </AppLayout>
