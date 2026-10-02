@@ -21,7 +21,7 @@ const isActive = (url: string): boolean => {
         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-                <SidebarMenuButton as-child :is-active="isActive(item.href)">
+                <SidebarMenuButton as-child :is-active="isActive(item.match ?? item.href)">
                     <Link :href="item.href">
                         <component :is="item.icon" v-if="item.icon" />
                         <span>{{ item.title }}</span>

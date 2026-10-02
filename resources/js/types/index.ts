@@ -14,6 +14,8 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    /** Pfad-Präfix, ab dem der Eintrag als aktiv gilt (z. B. '/settings' für alle Unterseiten) */
+    match?: string;
 }
 
 export interface SharedData {

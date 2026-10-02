@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
@@ -11,6 +12,8 @@ use Tests\TestCase;
  */
 class NavigationLinksTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @return array<string,string> routenname => datei */
     private function usedRouteNames(): array
     {
@@ -59,5 +62,17 @@ class NavigationLinksTest extends TestCase
         $nav = file_get_contents(resource_path('js/components/NavMain.vue'));
         $this->assertStringNotContainsString('item.url', $nav);
         $this->assertStringContainsString('item.href', $nav);
+    }
+
+    public function test_settings_are_reachable_from_the_sidebar_and_all_their_pages_exist(): void
+    {
+        $sidebar = file_get_contents(resource_path('js/components/AppSidebar.vue'));
+        $this->assertStringContainsString("href: '/settings/profile'", $sidebar);
+        $this->assertStringContainsString("match: '/settings'", $sidebar, 'alle /settings/* Seiten sollen den Menüpunkt aktivieren');
+
+        $user = \App\Models\User::factory()->create();
+        foreach (['/settings/profile', '/settings/password', '/settings/appearance'] as $path) {
+            $this->actingAs($user)->get($path)->assertOk();
+        }
     }
 }
