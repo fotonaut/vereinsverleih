@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreItemRequest;
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\LoanRequest;
 use App\Services\WaitlistNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +24,13 @@ class ItemController extends Controller
 
         return Inertia::render('manage/items/Index', [
             'items' => Item::where('club_id', $request->user()->club_id)
+                // Zustand bei der letzten Rückgabe, um Beschädigtes/Unvollständiges hervorzuheben
+                ->addSelect(['last_return_condition' => LoanRequest::select('return_condition')
+                    ->whereColumn('item_id', 'items.id')->where('status', 'returned')->whereNotNull('returned_at')
+                    ->orderByDesc('returned_at')->limit(1)])
                 ->with('category:id,name')->orderBy('name')->get()
-                ->map(fn (Item $i) => $i->setAttribute('scope_label', $i->lending_scope->label())),
+                ->map(fn (Item $i) => $i->setAttribute('scope_label', $i->lending_scope->label())
+                    ->setAttribute('needs_attention', in_array($i->last_return_condition, ['damaged', 'incomplete'], true))),
         ]);
     }
 

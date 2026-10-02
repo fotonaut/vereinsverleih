@@ -123,6 +123,13 @@ class LoanRequestController extends Controller
                     'statusLabel' => $l->status->label(),
                     'current' => $l->is($loan),
                 ])->values() : null,
+                'return' => $loan->status === LoanStatus::Returned ? [
+                    'condition' => $loan->return_condition?->label(),
+                    'note' => $loan->return_note,
+                    'at' => $loan->returned_at?->toDateString(),
+                    'depositReturned' => $loan->deposit_returned,
+                    'hasDeposit' => (bool) $loan->item->deposit_cents,
+                ] : null,
                 'canCancelSeries' => $loan->series_id && $loan->seriesLoans()->contains(fn ($l) => in_array($l->status, self::CANCELLABLE, true)),
                 'canExtend' => in_array($loan->status, [LoanStatus::Approved, LoanStatus::PickedUp], true)
                     && ! $loan->pendingExtension()->exists(),

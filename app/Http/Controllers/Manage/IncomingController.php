@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Enums\LoanStatus;
+use App\Enums\ReturnCondition;
 use App\Http\Controllers\Controller;
 use App\Models\LoanExtension;
 use App\Models\LoanRequest;
@@ -10,11 +11,13 @@ use App\Notifications\ExtensionDecided;
 use App\Notifications\LoanSeriesDecided;
 use App\Services\WaitlistNotifier;
 use App\Notifications\LoanRequestDecided;
+use App\Notifications\LoanReturned;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -42,12 +45,13 @@ class IncomingController extends Controller
             ->map(fn (LoanRequest $l) => $l->toArray() + [
                 'status_label' => $l->status->label(),
                 'overdue' => $l->isOverdue(),
+                'return_condition_label' => $l->return_condition?->label(),
                 'series_total' => $l->series_id ? (int) ($seriesCounts[$l->series_id] ?? 1) : null,
                 'pending_extension' => $l->pendingExtension,
                 'next' => self::TRANSITIONS[$l->status->value] ?? [],
             ]);
 
-        return Inertia::render('manage/Incoming', ['loans' => $loans]);
+        return Inertia::render('manage/Incoming', ['loans' => $loans, 'conditions' => ReturnCondition::options()]);
     }
 
     public function update(Request $request, LoanRequest $loanRequest): RedirectResponse
@@ -57,6 +61,10 @@ class IncomingController extends Controller
         $data = $request->validate([
             'status' => ['required', 'in:approved,declined,picked_up,returned,cancelled'],
             'decision_note' => ['nullable', 'string', 'max:1000'],
+            // Rückgabe-Protokoll (nur bei status=returned relevant; ohne Angabe gilt "einwandfrei")
+            'return_condition' => ['nullable', Rule::enum(ReturnCondition::class)],
+            'return_note' => ['nullable', 'string', 'max:1000'],
+            'deposit_returned' => ['nullable', 'boolean'],
         ]);
 
         $allowed = self::TRANSITIONS[$loanRequest->status->value] ?? [];
@@ -78,7 +86,16 @@ class IncomingController extends Controller
         $loanRequest->update([
             'status' => $data['status'],
             'decision_note' => $data['decision_note'] ?? $loanRequest->decision_note,
-        ]);
+        ] + ($data['status'] === 'returned' ? [
+            'returned_at' => now(),
+            'return_condition' => $data['return_condition'] ?? ReturnCondition::Ok->value,
+            'return_note' => $data['return_note'] ?? null,
+            'deposit_returned' => (bool) ($data['deposit_returned'] ?? false),
+        ] : []));
+
+        if ($data['status'] === 'returned') {
+            Notification::route('mail', $loanRequest->requester_email)->notify(new LoanReturned($loanRequest->load('item.club')));
+        }
 
         if (in_array($data['status'], ['approved', 'declined', 'cancelled'], true)) {
             Notification::route('mail', $loanRequest->requester_email)->notify(new LoanRequestDecided($loanRequest->load('item.club')));

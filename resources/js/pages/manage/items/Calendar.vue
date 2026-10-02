@@ -10,6 +10,16 @@ import { Head, Link } from '@inertiajs/vue3';
 const props = defineProps<{
     item: { id: number; name: string; quantity: number };
     reservations: CalendarReservation[];
+    returns: {
+        id: number;
+        requester: string;
+        returned_at: string;
+        condition: string | null;
+        condition_label: string | null;
+        attention: boolean;
+        note: string | null;
+        deposit_returned: boolean;
+    }[];
     waitlist: { id: number; requester: string; quantity: number; start_date: string; end_date: string; series: string | null }[];
     loans: { id: number; requester: string; status: string; status_label: string; quantity: number; start_date: string; end_date: string }[];
 }>();
@@ -33,6 +43,31 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
 
             <AvailabilityCalendar :quantity="item.quantity" :reservations="reservations" />
+
+            <section v-if="returns.length">
+                <h2 class="mb-2 font-semibold">Letzte Rückgaben</h2>
+                <ul class="divide-y rounded-xl border text-sm">
+                    <li v-for="r in returns" :key="r.id" class="p-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span>
+                                <strong>{{ date(r.returned_at) }}</strong> · {{ r.requester }}
+                            </span>
+                            <span
+                                class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                :class="
+                                    r.attention
+                                        ? 'bg-red-100 text-red-800'
+                                        : r.condition === 'worn'
+                                          ? 'bg-amber-100 text-amber-800'
+                                          : 'bg-emerald-100 text-emerald-800'
+                                "
+                                >{{ r.condition_label }}</span
+                            >
+                        </div>
+                        <p v-if="r.note" class="mt-1 text-muted-foreground">{{ r.note }}</p>
+                    </li>
+                </ul>
+            </section>
 
             <section>
                 <h2 class="mb-2 font-semibold">Belegungen und offene Anfragen</h2>

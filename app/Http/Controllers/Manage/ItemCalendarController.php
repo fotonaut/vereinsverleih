@@ -39,6 +39,18 @@ class ItemCalendarController extends Controller
                     'end_date' => $w->end_date->toDateString(),
                     'series' => $w->isSeries() ? $w->repeat_count.'× '.\App\Support\LoanSeries::INTERVALS[$w->repeat] : null,
                 ])->values(),
+            'returns' => $item->loanRequests()->where('status', 'returned')->whereNotNull('returned_at')
+                ->orderByDesc('returned_at')->limit(8)->get()
+                ->map(fn ($l) => [
+                    'id' => $l->id,
+                    'requester' => $l->requester_name,
+                    'returned_at' => $l->returned_at->toDateString(),
+                    'condition' => $l->return_condition?->value,
+                    'condition_label' => $l->return_condition?->label(),
+                    'attention' => (bool) $l->return_condition?->needsAttention(),
+                    'note' => $l->return_note,
+                    'deposit_returned' => $l->deposit_returned,
+                ])->values(),
             'loans' => $loans->map(fn ($l) => [
                 'id' => $l->id,
                 'requester' => $l->requester_name,

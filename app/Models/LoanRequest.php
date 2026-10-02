@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LoanStatus;
+use App\Enums\ReturnCondition;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,7 @@ class LoanRequest extends Model
         'item_id', 'requester_user_id', 'requester_club_id', 'requester_type', 'requester_name',
         'requester_email', 'requester_phone', 'quantity', 'start_date', 'end_date', 'message',
         'status', 'decision_note', 'reminded_at', 'overdue_notified_at', 'overdue_count', 'series_id',
+        'returned_at', 'return_condition', 'return_note', 'deposit_returned',
     ];
 
     protected function casts(): array
@@ -28,6 +30,9 @@ class LoanRequest extends Model
             'end_date' => 'date:Y-m-d',
             'reminded_at' => 'datetime',
             'overdue_notified_at' => 'datetime',
+            'returned_at' => 'datetime',
+            'return_condition' => ReturnCondition::class,
+            'deposit_returned' => 'boolean',
         ];
     }
 

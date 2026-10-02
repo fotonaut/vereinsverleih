@@ -23,6 +23,7 @@ const props = defineProps<{
         club: { name: string; email: string };
         canExtend: boolean;
         canCancelSeries: boolean;
+        return: { condition: string | null; note: string | null; at: string | null; depositReturned: boolean; hasDeposit: boolean } | null;
         series: { token: string; start_date: string; end_date: string; status: string; statusLabel: string; current: boolean }[] | null;
         extension: { status: string; statusLabel: string; requested_end_date: string; message: string | null; decision_note: string | null } | null;
     };
@@ -75,6 +76,20 @@ const cancel = () => {
             <p v-if="loan.status === 'unverified'" class="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
                 Bitte bestätige deine Anfrage über den Link in der E-Mail, die wir dir geschickt haben.
             </p>
+            <div
+                v-if="loan.return"
+                class="mt-4 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-100"
+            >
+                <p>
+                    <strong
+                        >Zurückgegeben<template v-if="loan.return.at"> am {{ date(loan.return.at) }}</template
+                        >:</strong
+                    >
+                    {{ loan.return.condition }}
+                </p>
+                <p v-if="loan.return.note" class="mt-1">Notiz des Vereins: {{ loan.return.note }}</p>
+                <p v-if="loan.return.hasDeposit" class="mt-1">Kaution: {{ loan.return.depositReturned ? 'zurückgegeben' : 'noch offen' }}</p>
+            </div>
             <div v-if="loan.series" class="mt-4 rounded-md border p-3 text-sm">
                 <h2 class="mb-2 font-semibold">Serie mit {{ loan.series.length }} Terminen</h2>
                 <ul class="space-y-1">

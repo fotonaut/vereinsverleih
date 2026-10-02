@@ -14,6 +14,7 @@ class ExportController extends Controller
     private const HEADERS = [
         'ID', 'Gegenstand', 'Verleihender Verein', 'Anfragende(r)', 'Typ', 'E-Mail', 'Telefon', 'Menge',
         'Von', 'Bis', 'Status', 'Nachricht', 'Hinweis des Vereins', 'Angefragt am',
+        'Zurückgegeben am', 'Zustand bei Rückgabe', 'Rückgabe-Notiz', 'Kaution zurückgegeben',
     ];
 
     /** CSV-Export der Ausleihen des eigenen Vereins (eingehend = wir verleihen, ausgehend = wir leihen). */
@@ -65,6 +66,10 @@ class ExportController extends Controller
                         $l->message,
                         $l->decision_note,
                         $l->created_at->format('d.m.Y H:i'),
+                        $l->returned_at?->format('d.m.Y H:i'),
+                        $l->return_condition?->label(),
+                        $l->return_note,
+                        $l->status->value === 'returned' ? ($l->deposit_returned ? 'Ja' : 'Nein') : null,
                     ]), ';');
                 }
             });

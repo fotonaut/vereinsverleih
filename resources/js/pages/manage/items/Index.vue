@@ -43,6 +43,12 @@ const remove = (item: Item) => {
                         <tr v-for="item in items" :key="item.id" class="border-t">
                             <td class="p-3 font-medium">
                                 {{ item.name }} <span v-if="!item.active" class="ml-1 rounded bg-gray-100 px-1.5 text-xs text-gray-600">inaktiv</span>
+                                <span
+                                    v-if="item.needs_attention"
+                                    class="ml-1 rounded bg-red-100 px-1.5 text-xs font-normal text-red-800"
+                                    title="Bei der letzten Rückgabe beschädigt oder unvollständig – Details im Kalender"
+                                    >prüfen</span
+                                >
                             </td>
                             <td class="p-3">{{ item.category?.name ?? '–' }}</td>
                             <td class="p-3">{{ item.quantity }}</td>

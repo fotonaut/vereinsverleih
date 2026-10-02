@@ -67,6 +67,7 @@ export interface Item {
     active: boolean;
     club?: Club;
     category?: { id: number; name: string } | null;
+    needs_attention?: boolean;
 }
 
 export interface Loan {
@@ -86,6 +87,7 @@ export interface Loan {
     item: { id: number; name: string; club?: Club };
     next?: string[];
     overdue?: boolean;
+    return_condition_label?: string | null;
     series_id?: string | null;
     series_total?: number | null;
     pending_extension?: { id: number; requested_end_date: string; previous_end_date: string; message: string | null } | null;

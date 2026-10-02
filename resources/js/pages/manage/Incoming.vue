@@ -7,12 +7,26 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { date } from '@/lib/format';
 import type { BreadcrumbItem, Loan } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
-defineProps<{ loans: Loan[] }>();
+defineProps<{ loans: Loan[]; conditions: { value: string; label: string }[] }>();
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eingehende Anfragen', href: '/verwaltung/eingang' }];
 const notes = reactive<Record<number, string>>({});
+
+// Rückgabe-Protokoll: statt sofort zu speichern erst Zustand/Notiz/Kaution abfragen
+const returning = ref<number | null>(null);
+const returnForm = reactive({ return_condition: 'ok', return_note: '', deposit_returned: false });
+const startReturn = (loan: Loan) => {
+    Object.assign(returnForm, { return_condition: 'ok', return_note: '', deposit_returned: false });
+    returning.value = loan.id;
+};
+const confirmReturn = (loan: Loan) =>
+    router.patch(
+        route('manage.incoming.update', loan.id),
+        { status: 'returned', decision_note: notes[loan.id] ?? '', ...returnForm },
+        { preserveScroll: true, onSuccess: () => (returning.value = null) },
+    );
 const errors = usePage().props.errors as Record<string, string>;
 
 const labels: Record<string, string> = {
@@ -104,10 +118,42 @@ const change = (loan: Loan, status: string) =>
                         :key="s"
                         size="sm"
                         :variant="s === 'declined' || s === 'cancelled' ? 'destructive' : 'default'"
-                        @click="change(loan, s)"
+                        @click="s === 'returned' ? startReturn(loan) : change(loan, s)"
                         >{{ labels[s] }}</Button
                     >
                 </div>
+
+                <div
+                    v-if="returning === loan.id"
+                    class="mt-3 grid gap-3 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm dark:bg-emerald-950/30"
+                >
+                    <h3 class="font-semibold">Rückgabe protokollieren</h3>
+                    <label class="grid gap-1"
+                        >Zustand
+                        <select v-model="returnForm.return_condition" class="h-9 rounded-md border bg-transparent px-2">
+                            <option v-for="c in conditions" :key="c.value" :value="c.value">{{ c.label }}</option>
+                        </select>
+                    </label>
+                    <label class="grid gap-1"
+                        >Notiz (optional, die Ausleihenden sehen sie)
+                        <input
+                            v-model="returnForm.return_note"
+                            class="h-9 rounded-md border bg-transparent px-3"
+                            placeholder="z. B. Riss an der Seitenwand"
+                        />
+                    </label>
+                    <label class="flex items-center gap-2"
+                        ><input v-model="returnForm.deposit_returned" type="checkbox" /> Kaution zurückgegeben</label
+                    >
+                    <div class="flex gap-2">
+                        <Button size="sm" @click="confirmReturn(loan)">Rückgabe bestätigen</Button>
+                        <Button size="sm" variant="outline" @click="returning = null">Abbrechen</Button>
+                    </div>
+                </div>
+
+                <p v-if="loan.status === 'returned' && loan.return_condition_label" class="mt-2 text-xs text-muted-foreground">
+                    Zurückgegeben: {{ loan.return_condition_label }}
+                </p>
             </article>
         </div>
     </AppLayout>
