@@ -39,7 +39,11 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user()?->load('club:id,name'),
+                // Nur id/name des Vereins teilen – aber das Club-Modell des Benutzers nicht auf diese Spalten
+                // beschneiden, sonst bekommen Controller später ein Teilmodell (E-Mail, Telefon usw. = null).
+                'user' => ($user = $request->user())
+                    ? [...$user->toArray(), 'club' => $user->club?->only(['id', 'name'])]
+                    : null,
             ],
             'flash' => fn () => $request->session()->get('flash'),
         ]);

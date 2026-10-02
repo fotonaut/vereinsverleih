@@ -75,7 +75,8 @@ defineProps<{ operator: Operator; retentionDays: number }>();
                     Bei der Registrierung werden Vereinsangaben, Name, E-Mail-Adresse und ein verschlüsselt (Hash) gespeichertes Passwort verarbeitet
                     (Art. 6 Abs. 1 lit. b DSGVO). Ein Konto kann jederzeit in den Einstellungen gelöscht werden. Vereinsdaten und Inventar sind im
                     öffentlichen Katalog sichtbar, soweit ein Gegenstand als verleihbar markiert ist; Kontakt-E-Mail des Vereins wird erst bei
-                    genehmigten Anfragen angezeigt.
+                    genehmigten Anfragen angezeigt. Vereine können in den Benachrichtigungs-Einstellungen eine zusätzliche Empfängeradresse
+                    hinterlegen; für deren Angabe ist der jeweilige Verein verantwortlich.
                 </p>
             </section>
 

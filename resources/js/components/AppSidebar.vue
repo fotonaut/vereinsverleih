@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Building2, Folder, Hourglass, Inbox, LayoutGrid, Package, Search, Send, Users } from 'lucide-vue-next';
+import { Bell, BookOpen, Building2, Folder, Hourglass, Inbox, LayoutGrid, Package, Search, Send, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const user = usePage<SharedData>().props.auth.user;
@@ -20,6 +20,7 @@ const mainNavItems: NavItem[] = [
     ...(user.role === 'club_admin'
         ? [
               { title: 'Vereinsdaten', href: '/verwaltung/verein', icon: Building2 },
+              { title: 'Benachrichtigungen', href: '/verwaltung/benachrichtigungen', icon: Bell },
               { title: 'Mitglieder', href: '/verwaltung/mitglieder', icon: Users },
           ]
         : []),

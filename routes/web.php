@@ -46,6 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('export/ausleihen.csv', [Manage\ExportController::class, 'loans'])->name('export.loans');
         Route::get('verein', [Manage\ClubController::class, 'edit'])->name('club.edit');
         Route::put('verein', [Manage\ClubController::class, 'update'])->name('club.update');
+        Route::get('benachrichtigungen', [Manage\NotificationSettingsController::class, 'edit'])->name('notifications.edit');
+        Route::put('benachrichtigungen', [Manage\NotificationSettingsController::class, 'update'])->name('notifications.update');
+        Route::post('benachrichtigungen/test', [Manage\NotificationSettingsController::class, 'test'])
+            ->middleware('throttle:5,1')->name('notifications.test');
         Route::get('mitglieder', [Manage\MemberController::class, 'index'])->name('members.index');
         Route::post('mitglieder', [Manage\MemberController::class, 'store'])->name('members.store');
         Route::delete('mitglieder/{member}', [Manage\MemberController::class, 'destroy'])->name('members.destroy');

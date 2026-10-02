@@ -32,9 +32,10 @@ class CalendarTest extends TestCase
     {
         $owner = User::factory()->clubAdmin()->create();
         $item = Item::factory()->create(['club_id' => $owner->club_id, 'quantity' => 3]);
-        LoanRequest::factory()->status(LoanStatus::Approved)->create(['item_id' => $item->id, 'requester_name' => 'Anna']);
-        LoanRequest::factory()->status(LoanStatus::Pending)->create(['item_id' => $item->id, 'requester_name' => 'Berta']);
-        LoanRequest::factory()->status(LoanStatus::Returned)->create(['item_id' => $item->id, 'requester_name' => 'Carla']);
+        $dates = fn (int $from) => ['start_date' => today()->addDays($from)->toDateString(), 'end_date' => today()->addDays($from + 1)->toDateString()];
+        LoanRequest::factory()->status(LoanStatus::Approved)->create(['item_id' => $item->id, 'requester_name' => 'Anna'] + $dates(3));
+        LoanRequest::factory()->status(LoanStatus::Pending)->create(['item_id' => $item->id, 'requester_name' => 'Berta'] + $dates(10));
+        LoanRequest::factory()->status(LoanStatus::Returned)->create(['item_id' => $item->id, 'requester_name' => 'Carla'] + $dates(20));
 
         $this->actingAs($owner)->get("/verwaltung/gegenstaende/{$item->id}/kalender")->assertOk()
             ->assertInertia(fn (Assert $page) => $page

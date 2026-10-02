@@ -212,13 +212,13 @@ class LoanRequestController extends Controller
             'message' => $data['message'] ?? null,
         ]);
 
-        $loan->item->club->notifyContacts(new ExtensionRequested($extension->setRelation('loanRequest', $loan)));
+        $loan->item->club->notifyContacts(new ExtensionRequested($extension->setRelation('loanRequest', $loan)), 'extensions');
 
         return back()->with('flash', 'Verlängerung angefragt. Der Verein meldet sich bei dir.');
     }
 
     private function notifyOwner(LoanRequest $loan): void
     {
-        $loan->item->club->notifyContacts(new LoanRequestReceived($loan));
+        $loan->item->club->notifyContacts(new LoanRequestReceived($loan), 'requests');
     }
 }
